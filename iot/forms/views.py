@@ -14,13 +14,19 @@ class CustomLoginForm(forms.Form):
     email = forms.EmailField(label='Email')
     password = forms.CharField(widget=forms.PasswordInput, label='Mot de passe')
 
-# Formulaire d'inscription personnalisé avec email
+# Formulaire d'inscription personnalisé avec email unique
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)  # Ajouter le champ email
+    email = forms.EmailField(required=True, label='Email')
 
     class Meta:
         model = User
         fields = ("username", "email")
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("Cette adresse email est déjà associée à un compte.")
+        return email
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -266,66 +272,75 @@ def sondage_results(request, sondage_id):
         'table_rows': table_rows
     })
 
-# Vue de connexion personnalisée
+# Vue de connexion personnalisée sécurisée contre les emails multiples
 def custom_login(request):
     if request.method == 'POST':
         form = CustomLoginForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            try:
-                user_obj = User.objects.get(email=email)  # Trouver l'utilisateur par email
-                user = authenticate(request, username=user_obj.username, password=password)  # Authentifier avec username
-                if user is not None:
-                    login(request, user)
-                    return redirect('home')
+            
+            # Gérer le cas où plusieurs utilisateurs ont le même email
+            matching_users = User.objects.filter(email=email)
+            
+            if not matching_users.exists():
+                form.add_error(None, 'Aucun compte trouvé avec cet email.')
+            else:
+                authenticated_user = None
+                for u in matching_users:
+                    user = authenticate(request, username=u.username, password=password)
+                    if user is not None:
+                        authenticated_user = user
+                        break
+                
+                if authenticated_user:
+                    login(request, authenticated_user)
+                    return redirect('dashboard')
                 else:
                     form.add_error(None, 'Mot de passe incorrect.')
-            except User.DoesNotExist:
-                form.add_error(None, 'Email non trouvé.')
     else:
         form = CustomLoginForm()
     return render(request, 'forms/login.html', {'form': form})
 
 # Vue d'inscription
 def signup(request):
-    if request.method == 'POST':  # Si le formulaire est soumis
+    if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
-        if form.is_valid():  # Si le formulaire est valide
-            user = form.save()  # Sauvegarder le nouvel utilisateur
-            login(request, user)  # Connecter l'utilisateur
-            return redirect('home')  # Rediriger vers l'accueil
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('dashboard')
     else:
-        form = CustomUserCreationForm()  # Formulaire vide
+        form = CustomUserCreationForm()
     return render(request, 'forms/signup.html', {'form': form})
 
 # Vue de déconnexion
 class CustomLogoutView(LogoutView):
-    next_page = reverse_lazy('home')  # Rediriger vers l'accueil après déconnexion
+    next_page = reverse_lazy('home')
 
-# Vue pour mot de passe oublié (avec username)
+# Vue pour mot de passe oublié
 def forgot_password(request):
     user = None
     if request.method == 'POST':
-        if 'username' in request.POST:  # Étape 1 : saisir le username
+        if 'username' in request.POST:
             username = request.POST.get('username')
             try:
-                user = User.objects.get(username=username)  # Chercher l'utilisateur par username
+                user = User.objects.get(username=username)
             except User.DoesNotExist:
                 user = None
-        elif 'new_password1' in request.POST and request.session.get('reset_user_id'):  # Étape 2 : nouveau mot de passe
+        elif 'new_password1' in request.POST and request.session.get('reset_user_id'):
             user_id = request.session['reset_user_id']
             user = User.objects.get(id=user_id)
             form = SetPasswordForm(user, request.POST)
             if form.is_valid():
-                form.save()  # Sauvegarder le nouveau mot de passe
+                form.save()
                 update_session_auth_hash(request, user)
-                request.session.pop('reset_user_id', None)  # Nettoyer la session
-                return redirect('home')  # Rediriger vers l'accueil
+                request.session.pop('reset_user_id', None)
+                return redirect('home')
             else:
                 return render(request, 'forms/forgot_password.html', {'user': user, 'form': form})
     if user:
-        request.session['reset_user_id'] = user.id  # Stocker l'ID en session
+        request.session['reset_user_id'] = user.id
         form = SetPasswordForm(user)
         return render(request, 'forms/forgot_password.html', {'user': user, 'form': form})
     else:
