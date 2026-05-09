@@ -112,7 +112,9 @@
         }
 
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
+            // S'assurer que l'URL utilise 'sondage' au lieu de 'survey'
+            const cleanText = text.replace('/survey/', '/sondage/');
+            navigator.clipboard.writeText(cleanText).then(() => {
                 alert('Lien copié dans le presse-papiers !');
             });
         }
