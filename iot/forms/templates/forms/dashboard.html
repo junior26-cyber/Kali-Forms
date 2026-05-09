@@ -1,36 +1,46 @@
 {% extends 'forms/base.html' %}
 
-{% block title %}Mon Tableau de Bord - Sondages Pro{% endblock %}
+{% block title %}Mon Espace - KaliForms{% endblock %}
 
 {% block content %}
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1>Mes Formulaires</h1>
-        <a href="{% url 'sondage_create' %}" class="btn btn-primary">Créer un nouveau formulaire</a>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;">
+        <div>
+            <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0;">Mes Formulaires</h1>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Gérez vos collectes de données en cours.</p>
+        </div>
+        <a href="{% url 'sondage_create' %}" class="btn btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 10px;">
+            Nouveau Formulaire
+        </a>
     </div>
 
     {% if sondages %}
         <div class="grid">
             {% for sondage in sondages %}
-                <div class="card survey-item">
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem; border-radius: 16px; transition: transform 0.2s;">
                     <div>
-                        <div class="survey-item-title">{{ sondage.title }}</div>
-                        <div class="survey-item-meta">Créé le {{ sondage.created_at|date:"d/m/Y" }}</div>
-                        <div class="survey-item-meta">{{ sondage.responses.count }} réponses</div>
+                        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">{{ sondage.title }}</h3>
+                        <div style="display: flex; gap: 1rem; font-size: 0.815rem; color: var(--text-muted);">
+                            <span>Le {{ sondage.created_at|date:"d M Y" }}</span>
+                            <span style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 6px; height: 6px; background: #10b981; border-radius: 50%;"></span>
+                                {{ sondage.responses.count }} réponses
+                            </span>
+                        </div>
                     </div>
-                    <div class="actions">
-                        <a href="{% url 'sondage_results' sondage.id %}" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; background-color: #1a73e8;">Voir les réponses</a>
-                        <a href="{% url 'sondage_builder' sondage.id %}" class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;">Éditer</a>
-                        <a href="{% url 'sondage_delete' sondage.id %}" class="btn btn-outline" style="padding: 5px 10px; font-size: 12px; color: #d93025; border-color: #d93025;">Supprimer</a>
+                    <div style="margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                        <a href="{% url 'sondage_results' sondage.id %}" class="btn btn-primary" style="font-size: 0.75rem;">Résultats</a>
+                        <a href="{% url 'sondage_builder' sondage.id %}" class="btn btn-outline" style="font-size: 0.75rem;">Éditer</a>
+                        <a href="{% url 'sondage_delete' sondage.id %}" class="btn btn-outline" style="grid-column: span 2; font-size: 0.75rem; color: #ef4444; border-color: #fee2e2;">Supprimer</a>
                     </div>
                 </div>
             {% endfor %}
         </div>
     {% else %}
-        <div class="card" style="text-align: center; padding: 50px;">
-            <p style="font-size: 18px; color: var(--text-secondary);">Vous n'avez pas encore créé de formulaire.</p>
-            <a href="{% url 'sondage_create' %}" class="btn btn-primary" style="margin-top: 10px;">Commencer maintenant</a>
+        <div class="card" style="text-align: center; padding: 5rem 2rem; border-style: dashed; background: transparent;">
+            <p style="font-size: 1.125rem; color: var(--text-muted);">Aucun formulaire pour le moment.</p>
+            <a href="{% url 'sondage_create' %}" class="btn btn-primary" style="margin-top: 1rem;">Lancer ma première collecte</a>
         </div>
     {% endif %}
 
-    <a href="{% url 'sondage_create' %}" class="fab" title="Créer un nouveau formulaire">+</a>
+    <a href="{% url 'sondage_create' %}" class="fab">+</a>
 {% endblock %}
