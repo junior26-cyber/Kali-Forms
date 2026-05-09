@@ -1,4 +1,5 @@
 {% extends 'forms/base.html' %}
+
 {% block title %}Editer : {{ sondage.title }} - Sondages Pro{% endblock %}
 
 {% block content %}
@@ -20,10 +21,8 @@
     {% for question in questions %}
         <div class="card" id="q-{{ question.id }}">
             <form action="{% url 'question_edit' question.id %}" method="post">
-...
-        <h3 style="color: var(--text-secondary);">Ajouter une question</h3>
-        <form action="{% url 'question_add' sondage.id %}" method="post" style="display: flex; gap: 10px; justify-content: center; align-items: center;">
-
+                {% csrf_token %}
+                <div style="display: flex; gap: 15px; align-items: flex-start;">
                     <div style="flex-grow: 1;">
                         <input type="text" name="text" value="{{ question.text }}" placeholder="Question" required>
                         
@@ -84,7 +83,7 @@
 
     <div class="card" style="border: 2px dashed var(--border-color); background-color: transparent; text-align: center;">
         <h3 style="color: var(--text-secondary);">Ajouter une question</h3>
-        <form action="{% url 'question_add' survey.id %}" method="post" style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+        <form action="{% url 'question_add' sondage.id %}" method="post" style="display: flex; gap: 10px; justify-content: center; align-items: center;">
             {% csrf_token %}
             <select name="type" style="width: auto;">
                 {% for val, label in question_types %}
