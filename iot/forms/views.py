@@ -94,7 +94,7 @@ def question_add(request, sondage_id):
         order = (last_order.order + 1) if last_order else 0
         
         question = Question.objects.create(
-            survey=sondage,
+            sondage=sondage,
             text=text,
             type=q_type,
             is_required=is_required,
@@ -113,7 +113,7 @@ def question_add(request, sondage_id):
 
 @login_required
 def question_edit(request, question_id):
-    question = get_object_or_404(Question, id=question_id, survey__creator=request.user)
+    question = get_object_or_404(Question, id=question_id, sondage__creator=request.user)
     if request.method == 'POST':
         question.text = request.POST.get('text')
         question.type = request.POST.get('type')
@@ -138,21 +138,21 @@ def question_edit(request, question_id):
                 if otext.strip():
                     Option.objects.create(question=question, text=otext)
         
-        return redirect('sondage_builder', sondage_id=question.survey.id)
-    return redirect('sondage_builder', sondage_id=question.survey.id)
+        return redirect('sondage_builder', sondage_id=question.sondage.id)
+    return redirect('sondage_builder', sondage_id=question.sondage.id)
 
 @login_required
 def question_delete(request, question_id):
-    question = get_object_or_404(Question, id=question_id, survey__creator=request.user)
-    sondage_id = question.survey.id
+    question = get_object_or_404(Question, id=question_id, sondage__creator=request.user)
+    sondage_id = question.sondage.id
     if request.method == 'POST':
         question.delete()
     return redirect('sondage_builder', sondage_id=sondage_id)
 
 @login_required
 def option_delete(request, option_id):
-    option = get_object_or_404(Option, id=option_id, question__survey__creator=request.user)
-    sondage_id = option.question.survey.id
+    option = get_object_or_404(Option, id=option_id, question__sondage__creator=request.user)
+    sondage_id = option.question.sondage.id
     option.delete()
     return redirect('sondage_builder', sondage_id=sondage_id)
 
@@ -168,13 +168,13 @@ def sondage_view(request, sondage_id):
 def sondage_submit(request, sondage_id):
     sondage = get_object_or_404(Sondage, id=sondage_id, is_active=True)
     if request.method == 'POST':
-        response = Response.objects.create(
-            survey=sondage,
+        response_obj = Response.objects.create(
+            sondage=sondage,
             user=request.user if request.user.is_authenticated else None
         )
         
         for question in sondage.questions.all():
-            answer = Answer.objects.create(response=response, question=question)
+            answer = Answer.objects.create(response=response_obj, question=question)
             
             if question.type in ['text', 'textarea']:
                 answer.text_value = request.POST.get(f'q_{question.id}')
@@ -211,7 +211,7 @@ def sondage_results(request, sondage_id):
             # Récupérer les 20 dernières réponses textuelles non vides
             data['answers_list'] = Answer.objects.filter(
                 question=question, 
-                response__survey=sondage
+                response__sondage=sondage
             ).exclude(text_value='').values_list('text_value', flat=True)[:20]
         else:
             options_stats = []
@@ -219,7 +219,7 @@ def sondage_results(request, sondage_id):
                 count = Answer.objects.filter(
                     question=question, 
                     selected_options=option,
-                    response__survey=sondage
+                    response__sondage=sondage
                 ).count()
                 options_stats.append({
                     'text': option.text,

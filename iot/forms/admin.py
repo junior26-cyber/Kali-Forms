@@ -7,8 +7,8 @@ class OptionInline(admin.TabularInline):
 
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [OptionInline]
-    list_display = ('text', 'survey', 'type', 'is_required')
-    list_filter = ('survey', 'type')
+    list_display = ('text', 'sondage', 'type', 'is_required')
+    list_filter = ('sondage', 'type')
 
 class SondageAdmin(admin.ModelAdmin):
     list_display = ('title', 'creator', 'created_at', 'is_active')
