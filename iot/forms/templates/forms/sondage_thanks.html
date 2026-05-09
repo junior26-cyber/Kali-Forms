@@ -1,0 +1,13 @@
+{% extends 'forms/base.html' %}
+
+{% block title %}Merci ! - {{ survey.title }}{% endblock %}
+
+{% block content %}
+    <div class="card survey-header">
+        <h1 class="survey-title">{{ survey.title }}</h1>
+        <p>Votre réponse a bien été enregistrée.</p>
+        <div style="margin-top: 20px;">
+            <a href="{% url 'survey_view' survey.id %}" style="color: var(--primary-color); text-decoration: none;">Envoyer une autre réponse</a>
+        </div>
+    </div>
+{% endblock %}

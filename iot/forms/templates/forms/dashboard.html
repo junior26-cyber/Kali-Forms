@@ -1,0 +1,36 @@
+{% extends 'forms/base.html' %}
+
+{% block title %}Mon Tableau de Bord - Sondages Pro{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Mes Formulaires</h1>
+        <a href="{% url 'sondage_create' %}" class="btn btn-primary">Créer un nouveau formulaire</a>
+    </div>
+
+    {% if sondages %}
+        <div class="grid">
+            {% for sondage in sondages %}
+                <div class="card survey-item">
+                    <div>
+                        <div class="survey-item-title">{{ sondage.title }}</div>
+                        <div class="survey-item-meta">Créé le {{ sondage.created_at|date:"d/m/Y" }}</div>
+                        <div class="survey-item-meta">{{ sondage.responses.count }} réponses</div>
+                    </div>
+                    <div class="actions">
+                        <a href="{% url 'sondage_results' sondage.id %}" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; background-color: #1a73e8;">Voir les réponses</a>
+                        <a href="{% url 'sondage_builder' sondage.id %}" class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;">Éditer</a>
+                        <a href="{% url 'sondage_delete' sondage.id %}" class="btn btn-outline" style="padding: 5px 10px; font-size: 12px; color: #d93025; border-color: #d93025;">Supprimer</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 50px;">
+            <p style="font-size: 18px; color: var(--text-secondary);">Vous n'avez pas encore créé de formulaire.</p>
+            <a href="{% url 'sondage_create' %}" class="btn btn-primary" style="margin-top: 10px;">Commencer maintenant</a>
+        </div>
+    {% endif %}
+
+    <a href="{% url 'sondage_create' %}" class="fab" title="Créer un nouveau formulaire">+</a>
+{% endblock %}

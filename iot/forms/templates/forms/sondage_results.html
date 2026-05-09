@@ -1,0 +1,45 @@
+{% extends 'forms/base.html' %}
+
+{% block title %}Résultats : {{ sondage.title }} - Sondages Pro{% endblock %}
+
+{% block content %}
+    <div class="card survey-header">
+        <h1 class="survey-title">{{ sondage.title }}</h1>
+        <p style="font-size: 24px;">{{ responses_count }} réponses</p>
+        <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+            <a href="{% url 'sondage_builder' sondage.id %}" class="btn btn-outline">Retour à l'édition</a>
+        </div>
+    </div>
+
+    {% for data in questions_data %}
+        <div class="card">
+            <h3 style="margin-bottom: 20px;">{{ data.question.text }}</h3>
+            
+            {% if data.question.type == 'text' or data.question.type == 'textarea' %}
+                <ul style="list-style: none; padding: 0;">
+                    {% for ans in data.answers %}
+                        <li style="background-color: #f8f9fa; padding: 10px; margin-bottom: 8px; border-radius: 4px; border-left: 4px solid var(--primary-color);">
+                            {{ ans }}
+                        </li>
+                    {% empty %}
+                        <li style="color: var(--text-secondary);">Pas encore de réponses</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                {% for opt in data.answers %}
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
+                            <span>{{ opt.text }}</span>
+                            <span>{{ opt.count }} ({{ opt.percentage|floatformat:1 }}%)</span>
+                        </div>
+                        <div style="background-color: #e8eaed; height: 12px; border-radius: 6px; overflow: hidden;">
+                            <div style="background-color: var(--primary-color); height: 100%; width: {{ opt.percentage }}%;"></div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p style="color: var(--text-secondary);">Aucune donnée à afficher</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endblock %}

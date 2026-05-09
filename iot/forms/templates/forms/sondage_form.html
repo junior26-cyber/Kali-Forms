@@ -1,0 +1,24 @@
+{% extends 'forms/base.html' %}
+
+{% block title %}{% if sondage %}Modifier{% else %}Créer{% endif %} un Sondage - Sondages Pro{% endblock %}
+
+{% block content %}
+    <div class="card survey-header">
+        <h1>{% if sondage %}Modifier le sondage{% else %}Nouveau sondage{% endif %}</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 20px;">
+                <label for="title" style="display: block; font-weight: 500; margin-bottom: 5px;">Titre du formulaire</label>
+                <input type="text" name="title" id="title" placeholder="Formulaire sans titre" value="{{ sondage.title|default:'' }}" required>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label for="description" style="display: block; font-weight: 500; margin-bottom: 5px;">Description</label>
+                <textarea name="description" id="description" placeholder="Description du formulaire" rows="3">{{ sondage.description|default:'' }}</textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <a href="{% url 'dashboard' %}" class="btn btn-outline">Annuler</a>
+                <button type="submit" class="btn btn-primary">{% if sondage %}Enregistrer les modifications{% else %}Créer le formulaire{% endif %}</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

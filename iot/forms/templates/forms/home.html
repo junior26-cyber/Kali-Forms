@@ -1,0 +1,39 @@
+{% extends 'forms/base.html' %}
+
+{% block title %}Accueil - Sondages Pro{% endblock %}
+
+{% block content %}
+    <div style="text-align: center; padding: 60px 20px;">
+        <h1 style="font-size: 48px; margin-bottom: 20px;">Créez des sondages en quelques clics</h1>
+        <p style="font-size: 20px; color: var(--text-secondary); max-width: 600px; margin: 0 auto 40px;">
+            Une plateforme simple, moderne et efficace pour collecter des avis, organiser des événements ou réaliser des études de marché.
+        </p>
+        
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="btn btn-primary" style="font-size: 18px; padding: 15px 40px;">Accéder à mon tableau de bord</a>
+        {% else %}
+            <div style="display: flex; gap: 20px; justify-content: center;">
+                <a href="{% url 'signup' %}" class="btn btn-primary" style="font-size: 18px; padding: 15px 40px;">Commencer gratuitement</a>
+                <a href="{% url 'login' %}" class="btn btn-outline" style="font-size: 18px; padding: 15px 40px;">Se connecter</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="grid" style="margin-top: 40px;">
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 15px;">📊</div>
+            <h3>Analyses en temps réel</h3>
+            <p>Consultez les résultats de vos sondages avec des graphiques clairs et précis dès la première réponse.</p>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 15px;">📱</div>
+            <h3>Totalement Responsive</h3>
+            <p>Vos formulaires s'adaptent parfaitement sur mobile, tablette et ordinateur pour une expérience optimale.</p>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 15px;">🛡️</div>
+            <h3>Sécurisé & Privé</h3>
+            <p>Contrôlez qui peut répondre à vos sondages et gardez vos données en sécurité.</p>
+        </div>
+    </div>
+{% endblock %}

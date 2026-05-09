@@ -1,0 +1,58 @@
+{% extends 'forms/base.html' %}
+
+{% block title %}{{ sondage.title }} - Sondages Pro{% endblock %}
+
+{% block content %}
+    <div class="card survey-header">
+        <h1 class="survey-title">{{ sondage.title }}</h1>
+        <p class="survey-description">{{ sondage.description|default:"" }}</p>
+        {% if not user.is_authenticated %}
+            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                * Votre adresse e-mail ne sera pas enregistrée.
+            </p>
+        {% endif %}
+    </div>
+
+    <form action="{% url 'sondage_submit' sondage.id %}" method="post">
+        {% csrf_token %}
+        {% for question in questions %}
+            <div class="card">
+                <p style="font-size: 16px; font-weight: 500; margin-bottom: 15px;">
+                    {{ question.text }} {% if question.is_required %}<span style="color: #d93025;">*</span>{% endif %}
+                </p>
+                
+                <div class="options">
+                    {% if question.type == 'text' %}
+                        <input type="text" name="q_{{ question.id }}" placeholder="Votre réponse" {% if question.is_required %}required{% endif %}>
+                    {% elif question.type == 'textarea' %}
+                        <textarea name="q_{{ question.id }}" rows="3" placeholder="Votre réponse" {% if question.is_required %}required{% endif %}></textarea>
+                    {% elif question.type == 'radio' or question.type == 'boolean' %}
+                        {% for option in question.options.all %}
+                            <label style="display: block; margin-bottom: 10px; cursor: pointer;">
+                                <input type="radio" name="q_{{ question.id }}" value="{{ option.id }}" {% if question.is_required %}required{% endif %}> {{ option.text }}
+                            </label>
+                        {% endfor %}
+                    {% elif question.type == 'checkbox' %}
+                        {% for option in question.options.all %}
+                            <label style="display: block; margin-bottom: 10px; cursor: pointer;">
+                                <input type="checkbox" name="q_{{ question.id }}" value="{{ option.id }}"> {{ option.text }}
+                            </label>
+                        {% endfor %}
+                    {% elif question.type == 'select' %}
+                        <select name="q_{{ question.id }}" {% if question.is_required %}required{% endif %}>
+                            <option value="">Choisir</option>
+                            {% for option in question.options.all %}
+                                <option value="{{ option.id }}">{{ option.text }}</option>
+                            {% endfor %}
+                        </select>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+
+        <div style="margin-bottom: 40px;">
+            <button type="submit" class="btn btn-primary">Envoyer</button>
+            <button type="reset" class="btn btn-outline" style="margin-left: 10px;">Effacer le formulaire</button>
+        </div>
+    </form>
+{% endblock %}

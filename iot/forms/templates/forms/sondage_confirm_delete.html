@@ -1,0 +1,16 @@
+{% extends 'forms/base.html' %}
+
+{% block title %}Supprimer {{ sondage.title }} - Sondages Pro{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Supprimer le sondage ?</h1>
+        <p>Êtes-vous sûr de vouloir supprimer le sondage <strong>"{{ sondage.title }}"</strong> ? Cette action est irréversible et toutes les réponses associées seront perdues.</p>
+        
+        <form method="post" style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+            {% csrf_token %}
+            <a href="{% url 'dashboard' %}" class="btn btn-outline">Annuler</a>
+            <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
+        </form>
+    </div>
+{% endblock %}
