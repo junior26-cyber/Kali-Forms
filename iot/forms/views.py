@@ -197,32 +197,62 @@ def sondage_submit(request, sondage_id):
 @login_required
 def sondage_results(request, sondage_id):
     sondage = get_object_or_404(Sondage, id=sondage_id, creator=request.user)
-    responses_count = sondage.responses.count()
+    responses = sondage.responses.all().order_by('-created_at')
+    responses_count = responses.count()
     
-    # Simple statistics
+    questions = sondage.questions.all()
     questions_data = []
-    for question in sondage.questions.all():
-        data = {'question': question, 'total': 0, 'answers': []}
+    
+    # Statistiques par question
+    for question in questions:
+        data = {'question': question, 'answers_list': []}
         
         if question.type in ['text', 'textarea']:
-            data['answers'] = Answer.objects.filter(question=question).exclude(text_value='').values_list('text_value', flat=True)[:10]
+            # Récupérer les 20 dernières réponses textuelles non vides
+            data['answers_list'] = Answer.objects.filter(
+                question=question, 
+                response__survey=sondage
+            ).exclude(text_value='').values_list('text_value', flat=True)[:20]
         else:
             options_stats = []
             for option in question.options.all():
-                count = Answer.objects.filter(question=question, selected_options=option).count()
+                count = Answer.objects.filter(
+                    question=question, 
+                    selected_options=option,
+                    response__survey=sondage
+                ).count()
                 options_stats.append({
                     'text': option.text,
                     'count': count,
                     'percentage': (count / responses_count * 100) if responses_count > 0 else 0
                 })
-            data['answers'] = options_stats
+            data['options_stats'] = options_stats
             
         questions_data.append(data)
+    
+    # Tableau détaillé des réponses
+    table_headers = [q.text for q in questions]
+    table_rows = []
+    for resp in responses:
+        row = {'id': resp.id, 'date': resp.created_at, 'answers': []}
+        for q in questions:
+            ans = Answer.objects.filter(response=resp, question=q).first()
+            if ans:
+                if q.type in ['text', 'textarea']:
+                    row['answers'].append(ans.text_value or '-')
+                else:
+                    opts = ", ".join([o.text for o in ans.selected_options.all()])
+                    row['answers'].append(opts or '-')
+            else:
+                row['answers'].append('-')
+        table_rows.append(row)
         
     return render(request, 'forms/sondage_results.html', {
         'sondage': sondage,
         'responses_count': responses_count,
-        'questions_data': questions_data
+        'questions_data': questions_data,
+        'table_headers': table_headers,
+        'table_rows': table_rows
     })
 
 # Vue de connexion personnalisée
