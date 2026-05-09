@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django import forms
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Sondage, Question, Option, Response, Answer
 
 # Formulaire de connexion personnalisé avec email
@@ -73,7 +74,12 @@ def sondage_delete(request, sondage_id):
 
 @login_required
 def sondage_builder(request, sondage_id):
-    sondage = get_object_or_404(Sondage, id=sondage_id, creator=request.user)
+    try:
+        sondage = Sondage.objects.get(id=sondage_id, creator=request.user)
+    except Sondage.DoesNotExist:
+        messages.error(request, "Accès refusé : vous n'êtes pas le propriétaire de ce sondage.")
+        return redirect('dashboard')
+        
     questions = sondage.questions.all().prefetch_related('options')
     return render(request, 'forms/sondage_builder.html', {
         'sondage': sondage,
@@ -196,7 +202,12 @@ def sondage_submit(request, sondage_id):
 
 @login_required
 def sondage_results(request, sondage_id):
-    sondage = get_object_or_404(Sondage, id=sondage_id, creator=request.user)
+    try:
+        sondage = Sondage.objects.get(id=sondage_id, creator=request.user)
+    except Sondage.DoesNotExist:
+        messages.error(request, "Accès refusé : vous n'avez pas l'autorisation de voir ces résultats.")
+        return redirect('dashboard')
+
     responses = sondage.responses.all().order_by('-created_at')
     responses_count = responses.count()
     
