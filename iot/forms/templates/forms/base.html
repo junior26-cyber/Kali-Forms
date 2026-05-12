@@ -3,37 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}KaliForms - Intelligence de Données{% endblock %}</title>
+    <title>{% block title %}KaliForms | Intelligence de Données{% endblock %}</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            --radius: 12px;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            line-height: 1.5;
+            --brand-primary: #2563eb;
+            --brand-secondary: #7c3aed;
+            --brand-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            --surface-bg: #f8fafc;
+            --surface-white: #ffffff;
+            --text-high: #0f172a;
+            --text-medium: #475569;
+            --text-low: #94a3b8;
+            --border-subtle: #e2e8f0;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--surface-bg);
+            color: var(--text-high);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Nav Modernization */
         nav {
-            background-color: var(--card-bg);
-            padding: 0.75rem 2rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0 2rem;
+            height: 72px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -41,129 +57,145 @@
 
         .logo {
             font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--text-main);
+            font-weight: 900;
             text-decoration: none;
-            letter-spacing: -0.5px;
+            color: var(--text-high);
+            letter-spacing: -1.5px;
+            display: flex;
+            align-items: center;
         }
 
-        .logo span {
-            color: var(--primary-color);
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--brand-gradient);
+            border-radius: 50%;
+            margin-right: 8px;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-sm);
-        }
-
+        /* Buttons Elite */
         .btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.625rem 1.25rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
             border: 1px solid transparent;
         }
 
         .btn-primary {
-            background-color: var(--primary-color);
+            background: var(--brand-gradient);
             color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
         .btn-primary:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-ghost {
+            color: var(--text-medium);
+            background: transparent;
+        }
+
+        .btn-ghost:hover {
+            background: #f1f5f9;
+            color: var(--text-high);
         }
 
         .btn-outline {
-            background-color: white;
-            border-color: var(--border-color);
-            color: var(--text-main);
+            background: white;
+            border-color: var(--border-subtle);
+            color: var(--text-high);
         }
 
         .btn-outline:hover {
-            background-color: #f1f5f9;
-            border-color: #cbd5e1;
+            border-color: var(--text-low);
+            background: #f8fafc;
         }
 
-        input[type="text"], input[type="email"], input[type="password"], textarea, select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+        /* Global Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            min-height: calc(100vh - 72px);
+        }
+
+        /* Card Elite */
+        .elite-card {
+            background: var(--surface-white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            padding: 2.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Animations */
+        .reveal {
+            animation: revealUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes revealUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Forms */
+        input, select, textarea {
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 2rem;
+            border-top: 1px solid var(--border-subtle);
+            background: white;
+            text-align: center;
+            color: var(--text-low);
             font-size: 0.875rem;
-            margin-top: 0.5rem;
-            background-color: #fff;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .fab {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 3.5rem;
-            height: 3.5rem;
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            text-decoration: none;
-            font-size: 1.5rem;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav>
-        <a href="{% url 'home' %}" class="logo">Kali<span>Forms</span></a>
-        <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="{% url 'home' %}" class="logo"><span class="logo-dot"></span>KaliForms</a>
+        <div class="nav-links">
             {% if user.is_authenticated %}
-                <span style="font-size: 0.875rem; color: var(--text-muted);">{{ user.username }}</span>
-                <a href="{% url 'dashboard' %}" class="btn btn-outline">Mes Formulaires</a>
+                <a href="{% url 'dashboard' %}" class="btn btn-ghost">Dashboard</a>
                 <form method="post" action="{% url 'logout' %}" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-outline">Déconnexion</button>
+                    <button type="submit" class="btn btn-outline">Quitter</button>
                 </form>
             {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline">Connexion</a>
-                <a href="{% url 'signup' %}" class="btn btn-primary">Inscription</a>
+                <a href="{% url 'login' %}" class="btn btn-ghost">Connexion</a>
+                <a href="{% url 'signup' %}" class="btn btn-primary">Démarrer gratuitement</a>
             {% endif %}
         </div>
     </nav>
 
-    <div class="container">
+    <main class="main-container">
         {% block content %}{% endblock %}
-    </div>
+    </main>
+
+    <footer>
+        &copy; 2026 KaliForms. Propulsé par l'intelligence.
+    </footer>
 
     {% block extra_js %}{% endblock %}
 </body>
