@@ -3,198 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}KaliForms | Intelligence de Données{% endblock %}</title>
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <title>{% block title %}KaliForms | Data Intelligence{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --brand-primary: #2563eb;
-            --brand-secondary: #7c3aed;
-            --brand-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-            --surface-bg: #f8fafc;
-            --surface-white: #ffffff;
-            --text-high: #0f172a;
-            --text-medium: #475569;
-            --text-low: #94a3b8;
-            --border-subtle: #e2e8f0;
-            --radius-lg: 16px;
-            --radius-md: 12px;
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --bg: #ffffff;
+            --fg: #000000;
+            --accent: #0070f3;
+            --gray-100: #fafafa;
+            --gray-200: #eaeaea;
+            --gray-300: #999999;
+            --gray-400: #888888;
+            --gray-500: #666666;
+            --radius: 8px;
+            --shadow: 0 5px 10px rgba(0,0,0,0.12);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--surface-bg);
-            color: var(--text-high);
-            line-height: 1.6;
-            overflow-x: hidden;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
-        /* Nav Modernization */
         nav {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-subtle);
-            padding: 0 2rem;
-            height: 72px;
+            height: 64px;
+            border-bottom: 1px solid var(--gray-200);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
             position: sticky;
             top: 0;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: saturate(180%) blur(5px);
             z-index: 1000;
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: 900;
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: -0.05em;
             text-decoration: none;
-            color: var(--text-high);
-            letter-spacing: -1.5px;
+            color: var(--fg);
             display: flex;
             align-items: center;
+            gap: 8px;
         }
 
-        .logo-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--brand-gradient);
-            border-radius: 50%;
-            margin-right: 8px;
+        .logo::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: var(--fg);
+            border-radius: 2px;
         }
 
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        /* Buttons Elite */
         .btn {
-            padding: 0.75rem 1.5rem;
+            height: 40px;
+            padding: 0 12px;
+            border-radius: var(--radius);
             font-size: 0.875rem;
-            font-weight: 600;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
+            font-weight: 500;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
             border: 1px solid transparent;
         }
 
-        .btn-primary {
-            background: var(--brand-gradient);
-            color: white;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        .btn-black {
+            background: var(--fg);
+            color: var(--bg);
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.3);
+        .btn-black:hover {
+            background: transparent;
+            color: var(--fg);
+            border-color: var(--fg);
         }
 
         .btn-ghost {
-            color: var(--text-medium);
-            background: transparent;
+            color: var(--gray-500);
         }
 
         .btn-ghost:hover {
-            background: #f1f5f9;
-            color: var(--text-high);
+            background: var(--gray-100);
+            color: var(--fg);
         }
 
-        .btn-outline {
-            background: white;
-            border-color: var(--border-subtle);
-            color: var(--text-high);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--text-low);
-            background: #f8fafc;
-        }
-
-        /* Global Container */
-        .main-container {
-            max-width: 1200px;
+        .container {
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 3rem 2rem;
-            min-height: calc(100vh - 72px);
+            padding: 0 1.5rem;
         }
 
-        /* Card Elite */
-        .elite-card {
-            background: var(--surface-white);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-subtle);
-            padding: 2.5rem;
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        /* Animations */
-        .reveal {
-            animation: revealUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        }
-
-        @keyframes revealUp {
-            from { opacity: 0; transform: translateY(30px); }
+        /* Base Animations */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Forms */
-        input, select, textarea {
-            font-family: inherit;
-            transition: all 0.2s;
-        }
+        .animate { animation: slideIn 0.5s ease-out forwards; }
 
-        /* Footer */
         footer {
-            padding: 4rem 2rem;
-            border-top: 1px solid var(--border-subtle);
-            background: white;
+            border-top: 1px solid var(--gray-200);
+            padding: 3rem 0;
             text-align: center;
-            color: var(--text-low);
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
+            color: var(--gray-400);
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav>
-        <a href="{% url 'home' %}" class="logo"><span class="logo-dot"></span>KaliForms</a>
-        <div class="nav-links">
+        <a href="{% url 'home' %}" class="logo">KaliForms</a>
+        <div style="display: flex; gap: 8px;">
             {% if user.is_authenticated %}
                 <a href="{% url 'dashboard' %}" class="btn btn-ghost">Dashboard</a>
                 <form method="post" action="{% url 'logout' %}" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-outline">Quitter</button>
+                    <button type="submit" class="btn btn-black">Sortir</button>
                 </form>
             {% else %}
                 <a href="{% url 'login' %}" class="btn btn-ghost">Connexion</a>
-                <a href="{% url 'signup' %}" class="btn btn-primary">Démarrer gratuitement</a>
+                <a href="{% url 'signup' %}" class="btn btn-black">S'inscrire</a>
             {% endif %}
         </div>
     </nav>
 
-    <main class="main-container">
+    <div class="container" style="min-height: calc(100vh - 200px);">
         {% block content %}{% endblock %}
-    </main>
+    </div>
 
     <footer>
-        &copy; 2026 KaliForms. Propulsé par l'intelligence.
+        &copy; 2026 KaliForms Inc.
     </footer>
 
     {% block extra_js %}{% endblock %}

@@ -1,209 +1,140 @@
 {% extends 'forms/base.html' %}
 
-{% block title %}KaliForms | La nouvelle référence des sondages intelligents{% endblock %}
+{% block title %}KaliForms | Sondages Ultra-Rapides{% endblock %}
 
 {% block extra_css %}
 <style>
-    .main-container { max-width: 100%; padding: 0; }
+    .container { max-width: 1200px; }
     
-    .hero-section {
-        padding: 8rem 2rem;
+    .hero {
+        padding: 100px 0;
         text-align: center;
-        position: relative;
-        background: radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.05), transparent);
+        animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .hero-label {
-        display: inline-block;
-        padding: 0.5rem 1.25rem;
-        background: #eff6ff;
-        color: var(--brand-primary);
-        border-radius: 100px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        margin-bottom: 2rem;
+    .hero h1 {
+        font-size: 80px;
+        font-weight: 800;
+        letter-spacing: -0.06em;
+        line-height: 0.9;
+        margin-bottom: 24px;
     }
 
-    .hero-section h1 {
-        font-size: clamp(2.5rem, 8vw, 5rem);
-        font-weight: 900;
-        color: var(--text-high);
-        line-height: 1;
-        letter-spacing: -3px;
-        margin-bottom: 1.5rem;
+    .hero p {
+        font-size: 20px;
+        color: var(--gray-500);
+        max-width: 600px;
+        margin: 0 auto 40px;
     }
 
-    .hero-section h1 span {
-        background: var(--brand-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .hero-section p {
-        font-size: 1.25rem;
-        color: var(--text-medium);
-        max-width: 640px;
-        margin: 0 auto 3rem;
-        line-height: 1.6;
-    }
-
-    /* Floating Showcase */
-    .showcase-container {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 0 2rem;
-        position: relative;
-    }
-
-    .showcase-ui {
-        background: white;
-        border-radius: 24px;
-        border: 1px solid var(--border-subtle);
-        box-shadow: 0 50px 100px -20px rgba(15, 23, 42, 0.12);
-        padding: 1rem;
-        transform: perspective(1000px) rotateX(5deg);
-        transition: transform 0.5s ease;
-    }
-
-    .showcase-ui:hover {
-        transform: perspective(1000px) rotateX(0deg);
-    }
-
-    .showcase-inner {
-        background: #f8fafc;
-        border-radius: 16px;
-        height: 400px;
-        padding: 2rem;
-    }
-
-    /* Grid of Excellence */
-    .grid-excellence {
-        max-width: 1200px;
-        margin: 8rem auto;
-        padding: 0 2rem;
+    .bento-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 3rem;
+        grid-auto-rows: 240px;
+        gap: 24px;
+        margin-bottom: 100px;
     }
 
-    .excel-card {
-        text-align: left;
+    .bento-item {
+        background: var(--bg);
+        border: 1px solid var(--gray-200);
+        border-radius: 20px;
+        padding: 32px;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
     }
 
-    .excel-card .icon {
-        width: 48px;
-        height: 48px;
-        background: var(--brand-primary);
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 900;
+    .bento-item:hover {
+        border-color: var(--fg);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.05);
+        transform: translateY(-4px);
     }
 
-    .excel-card h3 {
-        font-size: 1.5rem;
+    .bento-item.large {
+        grid-column: span 2;
+    }
+
+    .bento-item h3 {
+        font-size: 24px;
         font-weight: 700;
-        margin-bottom: 1rem;
-        letter-spacing: -0.5px;
+        letter-spacing: -0.02em;
+        margin-bottom: 12px;
     }
 
-    .excel-card p {
-        color: var(--text-medium);
-        font-size: 1rem;
+    .bento-item p {
+        font-size: 15px;
+        color: var(--gray-500);
+        line-height: 1.5;
     }
 
-    /* CTA Section */
-    .cta-final {
-        background: var(--text-high);
-        color: white;
-        padding: 6rem 2rem;
+    .visual-placeholder {
+        position: absolute;
+        bottom: -20px;
+        right: -20px;
+        width: 150px;
+        height: 150px;
+        background: var(--gray-100);
+        border-radius: 20px;
+        transform: rotate(-10deg);
+        border: 1px solid var(--gray-200);
+    }
+
+    .cta-bar {
+        background: var(--fg);
+        color: var(--bg);
+        padding: 60px;
+        border-radius: 24px;
         text-align: center;
+        margin-bottom: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
     }
 
-    .cta-final h2 {
-        font-size: 3rem;
-        font-weight: 800;
-        letter-spacing: -1.5px;
-        margin-bottom: 1rem;
-    }
-
-    @media (max-width: 768px) {
-        .grid-excellence { grid-template-columns: 1fr; gap: 4rem; }
-        .hero-section h1 { letter-spacing: -1px; }
+    @media (max-width: 900px) {
+        .hero h1 { font-size: 50px; }
+        .bento-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
+        .bento-item.large { grid-column: span 1; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-    <section class="hero-section reveal">
-        <span class="hero-label">Intelligence de Données v2.0</span>
-        <h1>Capturez l'avis<br>de votre <span>audience</span>.</h1>
-        <p>Plus qu'un simple formulaire. KaliForms est une extension de votre cerveau pour collecter, analyser et agir sur vos données en temps réel.</p>
-        
-        <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 5rem;">
-            <a href="{% url 'signup' %}" class="btn btn-primary" style="padding: 1rem 2.5rem; border-radius: 14px; font-size: 1rem;">
-                Commencer gratuitement
-            </a>
-            <a href="#features" class="btn btn-ghost" style="padding: 1rem 2.5rem; border-radius: 14px; font-size: 1rem;">
-                Découvrir les fonctions
-            </a>
+    <div class="hero">
+        <h1>Sonder.<br>Analyser.<br>Agir.</h1>
+        <p>Une infrastructure de données minimaliste pour collecter des réponses à la vitesse de la lumière.</p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <a href="{% url 'signup' %}" class="btn btn-black" style="height: 48px; padding: 0 32px; font-size: 1rem;">Démarrer</a>
+            <a href="{% url 'login' %}" class="btn btn-ghost" style="height: 48px; padding: 0 32px; font-size: 1rem;">Se connecter</a>
         </div>
+    </div>
 
-        <div class="showcase-container">
-            <div class="showcase-ui">
-                <div class="showcase-inner">
-                    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                        <div style="width: 120px; height: 32px; background: white; border-radius: 6px;"></div>
-                        <div style="width: 80px; height: 32px; background: white; border-radius: 6px;"></div>
-                    </div>
-                    <div style="height: 2px; background: #e2e8f0; width: 100%; margin-bottom: 2rem;"></div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                        <div style="background: white; height: 200px; border-radius: 12px; padding: 1.5rem;">
-                            <div style="width: 40%; height: 8px; background: #2563eb; margin-bottom: 1rem;"></div>
-                            <div style="width: 90%; height: 8px; background: #f1f5f9; margin-bottom: 0.5rem;"></div>
-                            <div style="width: 70%; height: 8px; background: #f1f5f9;"></div>
-                        </div>
-                        <div style="background: white; height: 200px; border-radius: 12px; padding: 1.5rem; display: flex; align-items: flex-end; gap: 8px;">
-                             <div style="flex: 1; height: 40%; background: #eff6ff; border-radius: 4px;"></div>
-                             <div style="flex: 1; height: 80%; background: #2563eb; border-radius: 4px;"></div>
-                             <div style="flex: 1; height: 60%; background: #eff6ff; border-radius: 4px;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="bento-grid">
+        <div class="bento-item large">
+            <h3>Builder Nouvelle Génération</h3>
+            <p>Une expérience sans friction pour construire vos formulaires. Pas de menus complexes, juste votre contenu.</p>
+            <div class="visual-placeholder" style="width: 300px; bottom: -40px;"></div>
         </div>
-    </section>
+        <div class="bento-item">
+            <h3>Analytics Temps Réel</h3>
+            <p>Obtenez des graphiques précis dès la première réponse. Sans latence.</p>
+            <div class="visual-placeholder"></div>
+        </div>
+        <div class="bento-item">
+            <h3>Auto-save Intégré</h3>
+            <p>Ne perdez plus jamais une seconde de travail. KaliForms sauvegarde tout, tout le temps.</p>
+        </div>
+        <div class="bento-item large">
+            <h3>Sécurité Native</h3>
+            <p>Isolation totale des données par utilisateur. Vos sondages restent privés, toujours.</p>
+            <div class="visual-placeholder" style="background: #0070f3; opacity: 0.1;"></div>
+        </div>
+    </div>
 
-    <section id="features" class="grid-excellence">
-        <div class="excel-card">
-            <div class="icon">01</div>
-            <h3>Construction sans effort</h3>
-            <p>Une interface "Notion-style" qui s'efface pour laisser place à vos idées. Créez des questions complexes en un clic.</p>
-        </div>
-        <div class="excel-card">
-            <div class="icon" style="background: #7c3aed;">02</div>
-            <h3>Analytics de précision</h3>
-            <p>Des graphiques automatiques qui racontent une histoire. Comprenez instantanément ce que pense votre audience.</p>
-        </div>
-        <div class="excel-card">
-            <div class="icon" style="background: #10b981;">03</div>
-            <h3>Architecture Elite</h3>
-            <p>Sécurité de grade entreprise. Vos données vous appartiennent, elles sont isolées et chiffrées par défaut.</p>
-        </div>
-    </section>
-
-    <section class="cta-final">
-        <div class="showcase-container">
-            <h2>Prêt à passer au niveau supérieur ?</h2>
-            <p style="color: #94a3b8; font-size: 1.25rem; margin-bottom: 3rem;">Rejoignez la nouvelle ère de la collecte de données.</p>
-            <a href="{% url 'signup' %}" class="btn btn-primary" style="padding: 1.25rem 4rem; background: white; color: var(--text-high); font-size: 1.125rem;">
-                Lancer KaliForms maintenant
-            </a>
-        </div>
-    </section>
+    <div class="cta-bar animate">
+        <h2 style="font-size: 32px; font-weight: 700;">Prêt pour une expérience plus propre ?</h2>
+        <a href="{% url 'signup' %}" class="btn" style="background: white; color: black; padding: 0 40px; height: 52px; font-size: 1.1rem; border-radius: 100px;">Créer mon KaliForm</a>
+    </div>
 {% endblock %}
