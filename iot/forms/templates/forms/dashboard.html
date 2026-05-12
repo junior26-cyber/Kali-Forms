@@ -24,11 +24,11 @@
     }
 
     .sondage-card {
-        background: white;
+        background: var(--surface-color);
         border: 1px solid var(--border-color);
         border-radius: 20px;
         padding: 2rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: var(--transition);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -38,8 +38,9 @@
 
     .sondage-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.05);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         border-color: var(--primary-color);
+        background: var(--surface-hover);
     }
 
     .card-footer {
@@ -51,13 +52,13 @@
     .stats-badge {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 4px 12px;
-        background: #f1f5f9;
+        gap: 8px;
+        padding: 6px 14px;
+        background: rgba(99, 102, 241, 0.1);
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 700;
-        color: var(--text-muted);
+        color: #818cf8;
     }
 
     .dot {
@@ -65,20 +66,21 @@
         height: 8px;
         border-radius: 50%;
         background: #10b981;
+        box-shadow: 0 0 10px #10b981;
     }
 
     .empty-state {
         text-align: center;
-        padding: 10rem 2rem;
-        background: rgba(255,255,255,0.5);
+        padding: 8rem 2rem;
         border: 2px dashed var(--border-color);
         border-radius: 32px;
+        color: var(--text-muted);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-    <div class="page-header">
+    <div class="page-header reveal">
         <div>
             <h1 style="font-size: 2.5rem; font-weight: 850; letter-spacing: -1.5px; margin: 0;">Mes Formulaires</h1>
             <p style="color: var(--text-muted); margin-top: 0.5rem;">Gérez vos collectes de données KaliForms.</p>
@@ -89,7 +91,7 @@
     </div>
 
     {% if sondages %}
-        <div class="sondage-grid">
+        <div class="sondage-grid reveal">
             {% for sondage in sondages %}
                 <div class="sondage-card">
                     <div>
@@ -108,18 +110,18 @@
                     <div class="card-footer">
                         <a href="{% url 'sondage_results' sondage.id %}" class="btn btn-primary" style="flex: 1; font-size: 0.815rem;">Analytics</a>
                         <a href="{% url 'sondage_builder' sondage.id %}" class="btn btn-outline" style="flex: 1; font-size: 0.815rem;">Éditer</a>
-                        <a href="{% url 'sondage_delete' sondage.id %}" class="btn btn-outline" style="padding: 0.625rem; border-color: #fee2e2;">
-                             <span style="color: #ef4444;">Supprimer</span>
+                        <a href="{% url 'sondage_delete' sondage.id %}" class="btn btn-outline" style="padding: 0.625rem; border-color: rgba(239, 68, 68, 0.3);">
+                             <span style="color: #f87171;">Supprimer</span>
                         </a>
                     </div>
                 </div>
             {% endfor %}
         </div>
     {% else %}
-        <div class="empty-state">
-            <h2 style="font-weight: 800;">Aucun formulaire actif</h2>
-            <p style="color: var(--text-muted); margin-bottom: 2rem;">Commencez à collecter des insights dès aujourd'hui.</p>
-            <a href="{% url 'sondage_create' %}" class="btn btn-primary btn-lg">Créer mon premier sondage</a>
+        <div class="empty-state reveal">
+            <h2 style="font-weight: 800; color: var(--text-main); margin-bottom: 1rem;">Aucun formulaire actif</h2>
+            <p style="margin-bottom: 2rem;">Commencez à collecter des insights dès aujourd'hui.</p>
+            <a href="{% url 'sondage_create' %}" class="btn btn-primary" style="height: 52px; padding: 0 40px; border-radius: 12px;">Créer mon premier sondage</a>
         </div>
     {% endif %}
 

@@ -1,42 +1,46 @@
 {% extends 'forms/base.html' %}
 
-{% block title %}Connexion - Sondages Pro{% endblock %}
+{% block title %}Connexion | KaliForms{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 400px; margin: 40px auto;">
-    <h1 style="text-align: center; margin-bottom: 30px;">Connexion</h1>
-    
-    <form method="post">
-        {% csrf_token %}
-        {% if form.non_field_errors %}
-            <div style="color: #d93025; margin-bottom: 15px; font-size: 14px;">
-                {{ form.non_field_errors }}
-            </div>
-        {% endif %}
+<div class="reveal" style="max-width: 440px; margin: 80px auto;">
+    <div class="card" style="padding: 3rem;">
+        <h1 style="text-align: center; margin-bottom: 2rem; font-size: 1.75rem; font-weight: 800; letter-spacing: -1px;">Bon retour</h1>
         
-        <div style="margin-bottom: 15px;">
-            <label for="{{ form.email.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">Email</label>
-            {{ form.email }}
-            {% if form.email.errors %}
-                <div style="color: #d93025; font-size: 12px;">{{ form.email.errors }}</div>
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="message-alert message-error" style="font-size: 0.8rem; margin-bottom: 1.5rem;">
+                    {{ form.non_field_errors.0 }}
+                </div>
             {% endif %}
-        </div>
+            
+            <div style="margin-bottom: 1.25rem;">
+                <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p style="color: #f87171; font-size: 0.75rem; margin-top: 4px;">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
 
-        <div style="margin-bottom: 20px;">
-            <label for="{{ form.password.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">Mot de passe</label>
-            {{ form.password }}
-            {% if form.password.errors %}
-                <div style="color: #d93025; font-size: 12px;">{{ form.password.errors }}</div>
-            {% endif %}
-        </div>
+            <div style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Mot de passe</label>
+                    <a href="{% url 'forgot_password' %}" style="font-size: 0.75rem; color: var(--primary-color); text-decoration: none;">Oublié ?</a>
+                </div>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <p style="color: #f87171; font-size: 0.75rem; margin-top: 4px;">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Se connecter</button>
-    </form>
-    
-    <div style="margin-top: 20px; text-align: center; font-size: 14px;">
-        <a href="{% url 'forgot_password' %}" style="color: var(--primary-color); text-decoration: none;">Mot de passe oublié ?</a>
-        <br><br>
-        Pas encore de compte ? <a href="{% url 'signup' %}" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">S'inscrire</a>
+            <button type="submit" class="btn btn-primary" style="width: 100%; height: 48px; border-radius: 10px;">Se connecter</button>
+        </form>
+        
+        <div style="margin-top: 2rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+            Nouveau sur KaliForms ? <a href="{% url 'signup' %}" style="color: var(--text-main); text-decoration: none; font-weight: 700;">Créer un compte</a>
+        </div>
     </div>
 </div>
 {% endblock %}

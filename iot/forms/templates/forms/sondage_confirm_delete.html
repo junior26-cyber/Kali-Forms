@@ -1,16 +1,21 @@
 {% extends 'forms/base.html' %}
 
-{% block title %}Supprimer {{ sondage.title }} - Sondages Pro{% endblock %}
+{% block title %}Confirmation de suppression | KaliForms{% endblock %}
 
 {% block content %}
-    <div class="card">
-        <h1>Supprimer le sondage ?</h1>
-        <p>Êtes-vous sûr de vouloir supprimer le sondage <strong>"{{ sondage.title }}"</strong> ? Cette action est irréversible et toutes les réponses associées seront perdues.</p>
+<div class="reveal" style="max-width: 500px; margin: 100px auto;">
+    <div class="card" style="border-top: 6px solid #ef4444; padding: 3rem;">
+        <h1 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; color: #f87171;">Action irréversible</h1>
+        <p style="color: var(--text-main); font-size: 1.1rem; line-height: 1.5; margin-bottom: 2.5rem;">
+            Êtes-vous absolument sûr de vouloir supprimer <strong>"{{ sondage.title }}"</strong> ?<br><br>
+            <span style="color: var(--text-muted); font-size: 0.9rem;">Toutes les données collectées et les statistiques associées seront définitivement effacées de nos serveurs.</span>
+        </p>
         
-        <form method="post" style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+        <form method="post" style="display: flex; gap: 1rem; flex-direction: column;">
             {% csrf_token %}
-            <a href="{% url 'dashboard' %}" class="btn btn-outline">Annuler</a>
-            <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
+            <button type="submit" class="btn btn-primary" style="background: #ef4444; color: white;">Supprimer définitivement</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline" style="border:none; color: var(--text-muted);">Annuler et revenir en arrière</a>
         </form>
     </div>
+</div>
 {% endblock %}

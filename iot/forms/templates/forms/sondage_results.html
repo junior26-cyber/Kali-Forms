@@ -4,14 +4,8 @@
 
 {% block extra_css %}
 <style>
-    .analytics-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
     .metric-card {
-        background: white;
+        background: var(--surface-color);
         padding: 1.5rem;
         border-radius: 16px;
         border: 1px solid var(--border-color);
@@ -24,9 +18,9 @@
     }
     .metric-label {
         color: var(--text-muted);
-        font-size: 0.875rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
     }
     .chart-container {
         position: relative;
@@ -48,27 +42,32 @@
         border-bottom-color: var(--primary-color);
     }
     .hidden { display: none; }
+    
+    /* Dark Table Styles */
+    table { width: 100%; border-collapse: collapse; background: var(--surface-color); }
+    th { background: rgba(255,255,255,0.02); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding: 1rem; border-bottom: 1px solid var(--border-color); text-align: left; }
+    td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.875rem; color: var(--text-main); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 3rem;">
+<div class="reveal" style="margin-bottom: 3rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h1 style="font-size: 2.25rem; font-weight: 850; letter-spacing: -1px; margin: 0;">Analytics</h1>
-        <a href="{% url 'sondage_builder' sondage.id %}" class="btn btn-outline">Retour à l'édition</a>
+        <h1 style="font-size: 2.5rem; font-weight: 850; letter-spacing: -1.5px; margin: 0;">Analytics</h1>
+        <a href="{% url 'sondage_builder' sondage.id %}" class="btn btn-outline">Éditer le projet</a>
     </div>
-    <p style="color: var(--text-muted);">{{ sondage.title }}</p>
+    <p style="color: var(--text-muted); font-size: 1.1rem;">{{ sondage.title }}</p>
 </div>
 
-<!-- Key Metrics -->
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+<!-- Metrics -->
+<div class="grid reveal" style="margin-bottom: 3rem;">
     <div class="metric-card">
         <div class="metric-value">{{ responses_count }}</div>
         <div class="metric-label">Participants</div>
     </div>
     <div class="metric-card">
         <div class="metric-value">100%</div>
-        <div class="metric-label">Taux de complétion</div>
+        <div class="metric-label">Complétion</div>
     </div>
     <div class="metric-card">
         <div class="metric-value">{{ sondage.questions.count }}</div>
@@ -76,61 +75,50 @@
     </div>
 </div>
 
-<div class="analytics-grid">
-    <!-- Evolution Chart -->
-    <div class="card" style="margin-bottom: 0;">
-        <h3 style="margin-top: 0; margin-bottom: 1.5rem;">Évolution des réponses</h3>
-        <div class="chart-container">
-            <canvas id="evolutionChart"></canvas>
-        </div>
-    </div>
-    
-    <!-- Info Card -->
-    <div class="card" style="margin-bottom: 0; background: var(--text-main); color: white;">
-        <h3 style="margin-top: 0; color: white;">Résumé KaliForms</h3>
-        <p style="color: #94a3b8; font-size: 0.875rem;">Vos données sont collectées en temps réel. La dernière réponse a été reçue aujourd'hui.</p>
-        <button class="btn btn-primary" style="background: white; color: var(--text-main); width: 100%; margin-top: 2rem;">Exporter en CSV</button>
+<!-- Charts Grid -->
+<div class="card reveal">
+    <h3 style="margin-bottom: 2rem;">Évolution des soumissions</h3>
+    <div class="chart-container">
+        <canvas id="evolutionChart"></canvas>
     </div>
 </div>
 
-<!-- Tabs Navigation -->
-<div style="display: flex; gap: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 2rem;">
+<div style="display: flex; gap: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 2rem;" class="reveal">
     <button class="tab-btn active" onclick="switchTab('charts')">Visualisation</button>
-    <button class="tab-btn" onclick="switchTab('table')">Données Brutes</button>
+    <button class="tab-btn" onclick="switchTab('table')">Base de données</button>
 </div>
 
-<!-- Charts Section -->
-<div id="chartsTab">
+<div id="chartsTab" class="reveal">
     {% for data in questions_data %}
-        <div class="card" style="margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
-                <h3 style="margin: 0; font-size: 1.25rem;">{{ data.question.text }}</h3>
-                <span class="status-badge" style="background: #f1f5f9; color: var(--text-main);">Type: {{ data.question.get_type_display }}</span>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 700;">{{ data.question.text }}</h3>
+                <span class="status-badge" style="font-size: 0.7rem;">{{ data.question.get_type_display }}</span>
             </div>
 
             {% if data.question.type == 'text' or data.question.type == 'textarea' %}
-                <div style="display: grid; gap: 0.75rem;">
+                <div style="display: grid; gap: 1rem;">
                     {% for ans in data.answers_list %}
-                        <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border-left: 3px solid var(--primary-color);">
+                        <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); font-size: 0.9375rem;">
                             {{ ans }}
                         </div>
                     {% empty %}
-                        <p style="color: var(--text-muted);">Aucune réponse textuelle.</p>
+                        <p style="color: var(--text-muted);">Aucune donnée textuelle reçue.</p>
                     {% endfor %}
                 </div>
             {% else %}
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;">
                     <div class="chart-container" style="height: 250px;">
                         <canvas id="chart-{{ data.question.id }}"></canvas>
                     </div>
                     <div>
                         {% for opt in data.options_stats %}
-                            <div style="margin-bottom: 1rem;">
-                                <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                                    <span style="font-weight: 600;">{{ opt.text }}</span>
-                                    <span class="color: var(--text-muted);">{{ opt.count }} ({{ opt.percentage|floatformat:1 }}%)</span>
+                            <div style="margin-bottom: 1.25rem;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 0.5rem; font-weight: 600;">
+                                    <span>{{ opt.text }}</span>
+                                    <span style="color: var(--primary-color);">{{ opt.count }} ({{ opt.percentage|floatformat:1 }}%)</span>
                                 </div>
-                                <div style="height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden;">
+                                <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
                                     <div style="height: 100%; width: {{ opt.percentage }}%; background: var(--primary-color);"></div>
                                 </div>
                             </div>
@@ -142,24 +130,23 @@
     {% endfor %}
 </div>
 
-<!-- Table Section -->
-<div id="tableTab" class="hidden">
+<div id="tableTab" class="hidden reveal">
     <div class="card" style="padding: 0; overflow: hidden;">
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead style="background: #f8fafc;">
+        <table>
+            <thead>
                 <tr>
-                    <th style="padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color);">Date</th>
+                    <th>Date de soumission</th>
                     {% for header in table_headers %}
-                        <th style="padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color);">{{ header }}</th>
+                        <th>{{ header }}</th>
                     {% endfor %}
                 </tr>
             </thead>
             <tbody>
                 {% for row in table_rows %}
                     <tr>
-                        <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.815rem; color: var(--text-muted);">{{ row.date|date:"d/m/Y H:i" }}</td>
+                        <td style="white-space: nowrap; color: var(--text-muted);">{{ row.date|date:"d/m/Y H:i" }}</td>
                         {% for answer in row.answers %}
-                            <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem;">{{ answer }}</td>
+                            <td>{{ answer }}</td>
                         {% endfor %}
                     </tr>
                 {% endfor %}
@@ -172,27 +159,23 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // --- Chart Global Configuration ---
     Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.color = "#64748b";
+    Chart.defaults.color = "#94a3b8";
 
-    // --- Evolution Chart ---
     const ctxEvo = document.getElementById('evolutionChart').getContext('2d');
     new Chart(ctxEvo, {
         type: 'line',
         data: {
             labels: {{ evolution_labels|safe }},
             datasets: [{
-                label: 'Réponses',
                 data: {{ evolution_data|safe }},
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.05)',
                 fill: true,
                 tension: 0.4,
-                borderWidth: 3,
-                pointRadius: 4,
-                pointBackgroundColor: '#fff',
-                pointBorderColor: '#2563eb'
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHitRadius: 10
             }]
         },
         options: {
@@ -200,25 +183,22 @@
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' } },
                 x: { grid: { display: false } }
             }
         }
     });
 
-    // --- Question Charts ---
     {% for data in questions_data %}
         {% if data.question.type != 'text' and data.question.type != 'textarea' %}
             const ctx{{ data.question.id }} = document.getElementById('chart-{{ data.question.id }}').getContext('2d');
             new Chart(ctx{{ data.question.id }}, {
-                type: '{% if data.question.type == "radio" or data.question.type == "boolean" %}pie{% else %}bar{% endif %}',
+                type: '{% if data.question.type == "radio" or data.question.type == "boolean" %}doughnut{% else %}bar{% endif %}',
                 data: {
                     labels: {{ data.chart_labels|safe }},
                     datasets: [{
                         data: {{ data.chart_data|safe }},
-                        backgroundColor: [
-                            '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
-                        ],
+                        backgroundColor: ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff'],
                         borderWidth: 0
                     }]
                 },
@@ -229,15 +209,9 @@
                         legend: { 
                             position: 'bottom',
                             display: {% if data.question.type == "radio" or data.question.type == "boolean" %}true{% else %}false{% endif %},
-                            labels: { usePointStyle: true, padding: 20 }
+                            labels: { usePointStyle: true, boxWidth: 6 }
                         }
-                    },
-                    {% if data.question.type == "checkbox" or data.question.type == "select" %}
-                    scales: {
-                        y: { beginAtZero: true },
-                        x: { grid: { display: false } }
                     }
-                    {% endif %}
                 }
             });
         {% endif %}
@@ -247,7 +221,6 @@
         document.getElementById('chartsTab').classList.add('hidden');
         document.getElementById('tableTab').classList.add('hidden');
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        
         document.getElementById(tab + 'Tab').classList.remove('hidden');
         event.currentTarget.classList.add('active');
     }
