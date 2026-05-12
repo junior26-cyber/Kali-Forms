@@ -126,6 +126,26 @@
             background: rgba(255,255,255,0.05);
         }
 
+        /* Inputs */
+        input[type="text"], input[type="email"], input[type="password"], textarea, select {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            transition: var(--transition);
+            margin-top: 0.5rem;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
         /* Animations */
         .reveal {
             animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -150,6 +170,15 @@
             border: 1px solid rgba(255,255,255,0.03);
             padding: 2.5rem;
             margin-bottom: 1.5rem;
+        }
+        
+        .status-badge {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -182,6 +211,13 @@
     </nav>
 
     <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="card" style="border-left: 5px solid {% if message.tags == 'error' %}#ef4444{% else %}#10b981{% endif %}; padding: 15px; margin-bottom: 20px; background: rgba(255,255,255,0.02);">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
         {% block content %}{% endblock %}
     </div>
 

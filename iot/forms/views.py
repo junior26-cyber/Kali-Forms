@@ -132,26 +132,24 @@ def question_edit(request, question_id):
         question.is_required = request.POST.get('is_required') == 'on'
         question.save()
         
-        # Handle options for choice types
+        # Gérer les options pour les types à choix
         if question.type in ['radio', 'checkbox', 'select']:
             option_ids = request.POST.getlist('option_ids')
             option_texts = request.POST.getlist('option_texts')
             
-            # Update existing options
+            # Mise à jour des existantes
             for oid, otext in zip(option_ids, option_texts):
                 if oid:
-                    opt = Option.objects.get(id=oid, question=question)
-                    opt.text = otext
-                    opt.save()
-            
-            # Add new options
-            new_options = request.POST.getlist('new_option_texts')
-            for otext in new_options:
-                if otext.strip():
+                    Option.objects.filter(id=oid, question=question).update(text=otext)
+                elif otext.strip():
                     Option.objects.create(question=question, text=otext)
         
         return redirect('sondage_builder', sondage_id=question.sondage.id)
-    return redirect('sondage_builder', sondage_id=question.sondage.id)
+    
+    return render(request, 'forms/question_form.html', {
+        'question': question,
+        'question_types': Question.QUESTION_TYPES
+    })
 
 @login_required
 def question_delete(request, question_id):

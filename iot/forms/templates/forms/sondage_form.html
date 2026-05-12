@@ -1,23 +1,77 @@
 {% extends 'forms/base.html' %}
 
-{% block title %}{% if sondage %}Modifier{% else %}Créer{% endif %} un Sondage - KaliForms{% endblock %}
+{% block title %}{% if sondage %}Ajuster{% else %}Nouveau{% endif %} Projet | KaliForms{% endblock %}
+
+{% block extra_css %}
+<style>
+    .simple-form-card {
+        max-width: 600px;
+        margin: 60px auto;
+        padding: 4rem;
+        background: var(--surface-color);
+        border-radius: 24px;
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .form-title {
+        font-size: 2.25rem;
+        font-weight: 850;
+        letter-spacing: -1.5px;
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+
+    .field-wrap {
+        margin-bottom: 2.5rem;
+    }
+
+    .field-wrap label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Override focus for extra beauty */
+    .field-wrap input, .field-wrap textarea {
+        border-color: rgba(255,255,255,0.05);
+        background: rgba(0,0,0,0.2);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-    <div class="card sondage-header">
-        <h1>{% if sondage %}Modifier le sondage{% else %}Nouveau sondage{% endif %}</h1>
+    <div class="simple-form-card reveal">
+        <h1 class="form-title">
+            {% if sondage %}Modifier le projet{% else %}Nouveau projet{% endif %}
+        </h1>
+        
         <form method="post">
             {% csrf_token %}
-            <div style="margin-bottom: 20px;">
-                <label for="title" style="display: block; font-weight: 500; margin-bottom: 5px;">Titre du formulaire</label>
-                <input type="text" name="title" id="title" placeholder="Formulaire sans titre" value="{{ sondage.title|default:'' }}" required>
+            
+            <div class="field-wrap">
+                <label>Nom du formulaire</label>
+                <input type="text" name="title" placeholder="ex: Sondage trimestriel" 
+                       value="{{ sondage.title|default:'' }}" required autocomplete="off">
             </div>
-            <div style="margin-bottom: 20px;">
-                <label for="description" style="display: block; font-weight: 500; margin-bottom: 5px;">Description</label>
-                <textarea name="description" id="description" placeholder="Description du formulaire" rows="3">{{ sondage.description|default:'' }}</textarea>
+
+            <div class="field-wrap">
+                <label>Description du contexte</label>
+                <textarea name="description" placeholder="À quoi servira ce formulaire ?" 
+                          rows="4">{{ sondage.description|default:'' }}</textarea>
             </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <a href="{% url 'dashboard' %}" class="btn btn-outline">Annuler</a>
-                <button type="submit" class="btn btn-primary">{% if sondage %}Enregistrer les modifications{% else %}Créer le formulaire{% endif %}</button>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 3rem;">
+                <button type="submit" class="btn btn-primary" style="height: 52px; font-size: 1rem;">
+                    {% if sondage %}Enregistrer les modifications{% else %}Lancer la création{% endif %}
+                </button>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline" style="border:none; opacity: 0.6;">
+                    Annuler
+                </a>
             </div>
         </form>
     </div>
