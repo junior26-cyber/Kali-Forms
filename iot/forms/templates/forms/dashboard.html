@@ -1,6 +1,6 @@
 {% extends 'forms/base.html' %}
 
-{% block title %}Mes Formulaires - KaliForms{% endblock %}
+{% block title %}Mes Formulaires | KaliForms{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -9,12 +9,6 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 4rem;
-        animation: fadeIn 0.5s ease-out;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
     }
 
     .sondage-grid {
@@ -26,21 +20,18 @@
     .sondage-card {
         background: var(--surface-color);
         border: 1px solid var(--border-color);
-        border-radius: 20px;
+        border-radius: 16px;
         padding: 2rem;
         transition: var(--transition);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        position: relative;
-        overflow: hidden;
     }
 
     .sondage-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         border-color: var(--primary-color);
-        background: var(--surface-hover);
     }
 
     .card-footer {
@@ -66,15 +57,13 @@
         height: 8px;
         border-radius: 50%;
         background: #10b981;
-        box-shadow: 0 0 10px #10b981;
     }
 
-    .empty-state {
-        text-align: center;
-        padding: 8rem 2rem;
-        border: 2px dashed var(--border-color);
-        border-radius: 32px;
-        color: var(--text-muted);
+    .btn-action {
+        flex: 1;
+        font-size: 0.75rem;
+        height: 36px;
+        padding: 0;
     }
 </style>
 {% endblock %}
@@ -83,10 +72,10 @@
     <div class="page-header reveal">
         <div>
             <h1 style="font-size: 2.5rem; font-weight: 850; letter-spacing: -1.5px; margin: 0;">Mes Formulaires</h1>
-            <p style="color: var(--text-muted); margin-top: 0.5rem;">Gérez vos collectes de données KaliForms.</p>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Gérez vos collectes de données en toute simplicité.</p>
         </div>
-        <a href="{% url 'sondage_create' %}" class="btn btn-primary" style="padding: 1rem 2rem; border-radius: 12px; font-size: 1rem;">
-            Nouveau projet
+        <a href="{% url 'sondage_create' %}" class="btn btn-primary" style="padding: 1rem 2.5rem; border-radius: 12px;">
+            Nouveau Formulaire
         </a>
     </div>
 
@@ -101,27 +90,26 @@
                                 {{ sondage.responses.count }} RÉPONSES
                             </span>
                         </div>
-                        <h3 style="font-size: 1.35rem; font-weight: 750; margin: 0; line-height: 1.3;">{{ sondage.title }}</h3>
-                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.75rem;">
-                            Modifié le {{ sondage.updated_at|date:"d M Y" }}
+                        <h3 style="font-size: 1.25rem; font-weight: 750; margin: 0;">{{ sondage.title }}</h3>
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">
+                            Créé le {{ sondage.created_at|date:"d M Y" }}
                         </p>
                     </div>
                     
                     <div class="card-footer">
-                        <a href="{% url 'sondage_results' sondage.id %}" class="btn btn-primary" style="flex: 1; font-size: 0.815rem;">Analytics</a>
-                        <a href="{% url 'sondage_builder' sondage.id %}" class="btn btn-outline" style="flex: 1; font-size: 0.815rem;">Éditer</a>
-                        <a href="{% url 'sondage_delete' sondage.id %}" class="btn btn-outline" style="padding: 0.625rem; border-color: rgba(239, 68, 68, 0.3);">
-                             <span style="color: #f87171;">Supprimer</span>
+                        <a href="{% url 'sondage_results' sondage.id %}" class="btn btn-primary btn-action">Résultats</a>
+                        <a href="{% url 'sondage_builder' sondage.id %}" class="btn btn-outline btn-action">Éditer</a>
+                        <a href="{% url 'sondage_delete' sondage.id %}" class="btn btn-outline btn-action" style="color: #f87171; border-color: rgba(239, 68, 68, 0.2);">
+                             Supprimer
                         </a>
                     </div>
                 </div>
             {% endfor %}
         </div>
     {% else %}
-        <div class="empty-state reveal">
-            <h2 style="font-weight: 800; color: var(--text-main); margin-bottom: 1rem;">Aucun formulaire actif</h2>
-            <p style="margin-bottom: 2rem;">Commencez à collecter des insights dès aujourd'hui.</p>
-            <a href="{% url 'sondage_create' %}" class="btn btn-primary" style="height: 52px; padding: 0 40px; border-radius: 12px;">Créer mon premier sondage</a>
+        <div class="card reveal" style="text-align: center; padding: 6rem 2rem; border-style: dashed; background: transparent;">
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Vous n'avez pas encore créé de formulaire.</p>
+            <a href="{% url 'sondage_create' %}" class="btn btn-primary">Lancer mon premier sondage</a>
         </div>
     {% endif %}
 
