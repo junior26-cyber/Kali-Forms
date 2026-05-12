@@ -219,7 +219,7 @@ def sondage_results(request, sondage_id):
         messages.error(request, "Accès refusé.")
         return redirect('dashboard')
 
-    responses = sondage.responses.all().order_with_respect_to('created_at')
+    responses = sondage.responses.all().order_by('created_at')
     responses_count = responses.count()
     
     # --- Données pour le graphique d'évolution (Time Series) ---
