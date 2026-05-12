@@ -1,24 +1,104 @@
 {% extends 'forms/base.html' %}
 
-{% block title %}{% if sondage %}Modifier{% else %}Créer{% endif %} un Sondage - Sondages Pro{% endblock %}
+{% block title %}{% if sondage %}Modifier{% else %}Nouveau{% endif %} Projet | KaliForms{% endblock %}
+
+{% block extra_css %}
+<style>
+    .creation-container {
+        max-width: 600px;
+        margin: 60px auto;
+    }
+    
+    .input-group {
+        margin-bottom: 3rem;
+    }
+
+    .input-label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .minimal-input {
+        background: transparent !important;
+        border: none !important;
+        border-bottom: 2px solid var(--border-color) !important;
+        border-radius: 0 !important;
+        padding: 1rem 0 !important;
+        font-size: 1.5rem !important;
+        font-weight: 600 !important;
+        color: var(--text-main) !important;
+        transition: var(--transition) !important;
+    }
+
+    .minimal-input:focus {
+        border-bottom-color: var(--primary-color) !important;
+        box-shadow: none !important;
+    }
+
+    .minimal-textarea {
+        background: transparent !important;
+        border: none !important;
+        border-bottom: 2px solid var(--border-color) !important;
+        border-radius: 0 !important;
+        padding: 1rem 0 !important;
+        font-size: 1.1rem !important;
+        color: var(--text-muted) !important;
+        resize: none;
+    }
+
+    .minimal-textarea:focus {
+        border-bottom-color: var(--primary-color) !important;
+        box-shadow: none !important;
+        color: var(--text-main) !important;
+    }
+
+    .action-bar {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 4rem;
+        align-items: center;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-    <div class="card survey-header">
-        <h1>{% if sondage %}Modifier le sondage{% else %}Nouveau sondage{% endif %}</h1>
-        <form method="post">
-            {% csrf_token %}
-            <div style="margin-bottom: 20px;">
-                <label for="title" style="display: block; font-weight: 500; margin-bottom: 5px;">Titre du formulaire</label>
-                <input type="text" name="title" id="title" placeholder="Formulaire sans titre" value="{{ sondage.title|default:'' }}" required>
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label for="description" style="display: block; font-weight: 500; margin-bottom: 5px;">Description</label>
-                <textarea name="description" id="description" placeholder="Description du formulaire" rows="3">{{ sondage.description|default:'' }}</textarea>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <a href="{% url 'dashboard' %}" class="btn btn-outline">Annuler</a>
-                <button type="submit" class="btn btn-primary">{% if sondage %}Enregistrer les modifications{% else %}Créer le formulaire{% endif %}</button>
-            </div>
-        </form>
+<div class="creation-container reveal">
+    <div style="margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem; font-weight: 900; letter-spacing: -2px;">
+            {% if sondage %}Ajuster le projet{% else %}Nouveau projet{% endif %}
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Définissez l'identité de votre collecte de données.</p>
     </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="input-group">
+            <label class="input-label">Titre du sondage</label>
+            <input type="text" name="title" class="minimal-input" 
+                   placeholder="ex: Satisfaction Client 2026" 
+                   value="{{ sondage.title|default:'' }}" required autocomplete="off">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Description (facultative)</label>
+            <textarea name="description" class="minimal-textarea" rows="2" 
+                      placeholder="Décrivez l'objectif de ce formulaire...">{{ sondage.description|default:'' }}</textarea>
+        </div>
+
+        <div class="action-bar">
+            <button type="submit" class="btn btn-primary" style="height: 54px; padding: 0 40px; font-size: 1rem;">
+                {% if sondage %}Sauvegarder les modifications{% else %}Lancer le Builder{% endif %}
+            </button>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline" style="border:none; color: var(--text-muted);">
+                Annuler
+            </a>
+        </div>
+    </form>
+</div>
 {% endblock %}
