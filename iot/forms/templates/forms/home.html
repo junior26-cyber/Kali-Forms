@@ -1,140 +1,39 @@
 {% extends 'forms/base.html' %}
 
-{% block title %}KaliForms | Sondages Ultra-Rapides{% endblock %}
-
-{% block extra_css %}
-<style>
-    .container { max-width: 1200px; }
-    
-    .hero {
-        padding: 100px 0;
-        text-align: center;
-        animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .hero h1 {
-        font-size: 80px;
-        font-weight: 800;
-        letter-spacing: -0.06em;
-        line-height: 0.9;
-        margin-bottom: 24px;
-    }
-
-    .hero p {
-        font-size: 20px;
-        color: var(--gray-500);
-        max-width: 600px;
-        margin: 0 auto 40px;
-    }
-
-    .bento-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-auto-rows: 240px;
-        gap: 24px;
-        margin-bottom: 100px;
-    }
-
-    .bento-item {
-        background: var(--bg);
-        border: 1px solid var(--gray-200);
-        border-radius: 20px;
-        padding: 32px;
-        transition: var(--transition);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .bento-item:hover {
-        border-color: var(--fg);
-        box-shadow: 0 30px 60px rgba(0,0,0,0.05);
-        transform: translateY(-4px);
-    }
-
-    .bento-item.large {
-        grid-column: span 2;
-    }
-
-    .bento-item h3 {
-        font-size: 24px;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        margin-bottom: 12px;
-    }
-
-    .bento-item p {
-        font-size: 15px;
-        color: var(--gray-500);
-        line-height: 1.5;
-    }
-
-    .visual-placeholder {
-        position: absolute;
-        bottom: -20px;
-        right: -20px;
-        width: 150px;
-        height: 150px;
-        background: var(--gray-100);
-        border-radius: 20px;
-        transform: rotate(-10deg);
-        border: 1px solid var(--gray-200);
-    }
-
-    .cta-bar {
-        background: var(--fg);
-        color: var(--bg);
-        padding: 60px;
-        border-radius: 24px;
-        text-align: center;
-        margin-bottom: 100px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 24px;
-    }
-
-    @media (max-width: 900px) {
-        .hero h1 { font-size: 50px; }
-        .bento-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
-        .bento-item.large { grid-column: span 1; }
-    }
-</style>
-{% endblock %}
+{% block title %}Accueil - KaliForms{% endblock %}
 
 {% block content %}
-    <div class="hero">
-        <h1>Sonder.<br>Analyser.<br>Agir.</h1>
-        <p>Une infrastructure de données minimaliste pour collecter des réponses à la vitesse de la lumière.</p>
-        <div style="display: flex; gap: 12px; justify-content: center;">
-            <a href="{% url 'signup' %}" class="btn btn-black" style="height: 48px; padding: 0 32px; font-size: 1rem;">Démarrer</a>
-            <a href="{% url 'login' %}" class="btn btn-ghost" style="height: 48px; padding: 0 32px; font-size: 1rem;">Se connecter</a>
-        </div>
+    <div style="text-align: center; padding: 60px 20px;">
+        <h1 style="font-size: 48px; margin-bottom: 20px; font-weight: 800;">Créez des sondages en quelques clics</h1>
+        <p style="font-size: 20px; color: var(--text-secondary); max-width: 600px; margin: 0 auto 40px;">
+            Une plateforme simple, moderne et efficace pour collecter des avis, organiser des événements ou réaliser des études de marché.
+        </p>
+        
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="btn btn-primary" style="font-size: 18px; padding: 15px 40px;">Accéder à mon tableau de bord</a>
+        {% else %}
+            <div style="display: flex; gap: 20px; justify-content: center;">
+                <a href="{% url 'signup' %}" class="btn btn-primary" style="font-size: 18px; padding: 15px 40px;">Commencer gratuitement</a>
+                <a href="{% url 'login' %}" class="btn btn-outline" style="font-size: 18px; padding: 15px 40px;">Se connecter</a>
+            </div>
+        {% endif %}
     </div>
 
-    <div class="bento-grid">
-        <div class="bento-item large">
-            <h3>Builder Nouvelle Génération</h3>
-            <p>Une expérience sans friction pour construire vos formulaires. Pas de menus complexes, juste votre contenu.</p>
-            <div class="visual-placeholder" style="width: 300px; bottom: -40px;"></div>
+    <div class="grid" style="margin-top: 40px;">
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 15px;">📊</div>
+            <h3>Analyses en temps réel</h3>
+            <p>Consultez les résultats de vos sondages avec des graphiques clairs et précis dès la première réponse.</p>
         </div>
-        <div class="bento-item">
-            <h3>Analytics Temps Réel</h3>
-            <p>Obtenez des graphiques précis dès la première réponse. Sans latence.</p>
-            <div class="visual-placeholder"></div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 15px;">📱</div>
+            <h3>Totalement Responsive</h3>
+            <p>Vos formulaires s'adaptent parfaitement sur mobile, tablette et ordinateur pour une expérience optimale.</p>
         </div>
-        <div class="bento-item">
-            <h3>Auto-save Intégré</h3>
-            <p>Ne perdez plus jamais une seconde de travail. KaliForms sauvegarde tout, tout le temps.</p>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 15px;">🛡️</div>
+            <h3>Sécurisé & Privé</h3>
+            <p>Contrôlez qui peut répondre à vos sondages et gardez vos données en sécurité avec KaliForms.</p>
         </div>
-        <div class="bento-item large">
-            <h3>Sécurité Native</h3>
-            <p>Isolation totale des données par utilisateur. Vos sondages restent privés, toujours.</p>
-            <div class="visual-placeholder" style="background: #0070f3; opacity: 0.1;"></div>
-        </div>
-    </div>
-
-    <div class="cta-bar animate">
-        <h2 style="font-size: 32px; font-weight: 700;">Prêt pour une expérience plus propre ?</h2>
-        <a href="{% url 'signup' %}" class="btn" style="background: white; color: black; padding: 0 40px; height: 52px; font-size: 1.1rem; border-radius: 100px;">Créer mon KaliForm</a>
     </div>
 {% endblock %}
