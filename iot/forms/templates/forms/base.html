@@ -16,6 +16,7 @@
             --text-muted: #94a3b8;
             --radius: 12px;
             --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --border-color: rgba(255,255,255,0.1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -41,8 +42,9 @@
             position: fixed;
             top: 0; width: 100%;
             z-index: 1000;
-            background: rgba(2, 6, 23, 0.7);
+            background: rgba(2, 6, 23, 0.85);
             backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
         }
 
         /* 3D Animated Logo */
@@ -55,25 +57,25 @@
             perspective: 1000px;
         }
         .cube {
-            width: 30px;
-            height: 30px;
+            width: 24px;
+            height: 24px;
             position: relative;
             transform-style: preserve-3d;
             animation: rotateCube 10s infinite linear;
         }
         .cube-face {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 24px;
+            height: 24px;
             border: 2px solid var(--primary-color);
             background: rgba(99, 102, 241, 0.1);
         }
-        .front  { transform: translateZ(15px); }
-        .back   { transform: rotateY(180deg) translateZ(15px); }
-        .right  { transform: rotateY(90deg) translateZ(15px); }
-        .left   { transform: rotateY(-90deg) translateZ(15px); }
-        .top    { transform: rotateX(90deg) translateZ(15px); }
-        .bottom { transform: rotateX(-90deg) translateZ(15px); }
+        .front  { transform: translateZ(12px); }
+        .back   { transform: rotateY(180deg) translateZ(12px); }
+        .right  { transform: rotateY(90deg) translateZ(12px); }
+        .left   { transform: rotateY(-90deg) translateZ(12px); }
+        .top    { transform: rotateX(90deg) translateZ(12px); }
+        .bottom { transform: rotateX(-90deg) translateZ(12px); }
 
         @keyframes rotateCube {
             from { transform: rotateX(0deg) rotateY(0deg); }
@@ -83,13 +85,13 @@
         .logo-text {
             font-size: 1.4rem;
             font-weight: 900;
-            letter-spacing: -1.5px;
+            letter-spacing: -1px;
         }
 
         /* Container */
         .container {
             max-width: 1200px;
-            margin: 80px auto 0;
+            margin: 100px auto 0;
             padding: 2rem;
             width: 100%;
             flex: 1;
@@ -100,10 +102,10 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.8rem 2rem;
-            font-size: 0.9rem;
+            padding: 0.7rem 1.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            border-radius: 100px;
+            border-radius: 10px;
             cursor: pointer;
             transition: var(--transition);
             text-decoration: none;
@@ -112,46 +114,51 @@
         .btn-primary {
             background: var(--primary-color);
             color: white;
-            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
         }
         .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.6);
+            background: #4f46e5;
+            transform: translateY(-1px);
         }
         .btn-outline {
-            border-color: rgba(255,255,255,0.1);
-            color: white;
+            border-color: var(--border-color);
+            color: var(--text-main);
         }
         .btn-outline:hover {
             background: rgba(255,255,255,0.05);
+            border-color: var(--text-muted);
         }
 
-        /* Inputs */
+        /* Inputs & Selects - Critical visibility fix */
         input[type="text"], input[type="email"], input[type="password"], textarea, select {
             width: 100%;
-            padding: 0.8rem 1.2rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            font-size: 1rem;
-            background-color: rgba(255, 255, 255, 0.03);
-            color: var(--text-main);
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            background-color: #1e293b; /* Solid dark color to ensure contrast */
+            color: #ffffff !important; /* Force white text */
             transition: var(--transition);
-            margin-top: 0.5rem;
         }
 
-        input:focus, textarea:focus {
+        /* Fix for select options appearance in various browsers */
+        select option {
+            background-color: #1e293b;
+            color: #ffffff;
+        }
+
+        input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: var(--primary-color);
-            background-color: rgba(255, 255, 255, 0.06);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background-color: #334155;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
         }
 
         /* Animations */
         .reveal {
-            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -160,15 +167,14 @@
             text-align: center;
             color: var(--text-muted);
             font-size: 0.8rem;
-            opacity: 0.6;
+            border-top: 1px solid var(--border-color);
         }
 
-        /* Common components update */
         .card {
             background: var(--surface-color);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.03);
-            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 2rem;
             margin-bottom: 1.5rem;
         }
         
@@ -196,15 +202,16 @@
             </div>
             <span class="logo-text">KaliForms</span>
         </a>
-        <div style="display: flex; gap: 1rem;">
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
             {% if user.is_authenticated %}
+                <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 0.5rem;">{{ user.username }}</span>
                 <a href="{% url 'dashboard' %}" class="btn btn-outline">Dashboard</a>
                 <form method="post" action="{% url 'logout' %}" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-outline" style="border:none; opacity: 0.6;">Sortir</button>
+                    <button type="submit" class="btn btn-outline" style="border-color: rgba(239, 68, 68, 0.3); color: #f87171;">Sortir</button>
                 </form>
             {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline" style="border:none;">Connexion</a>
+                <a href="{% url 'login' %}" class="btn btn-outline">Connexion</a>
                 <a href="{% url 'signup' %}" class="btn btn-primary">Rejoindre</a>
             {% endif %}
         </div>
@@ -213,7 +220,7 @@
     <div class="container">
         {% if messages %}
             {% for message in messages %}
-                <div class="card" style="border-left: 5px solid {% if message.tags == 'error' %}#ef4444{% else %}#10b981{% endif %}; padding: 15px; margin-bottom: 20px; background: rgba(255,255,255,0.02);">
+                <div class="card" style="border-left: 5px solid {% if message.tags == 'error' %}#f87171{% else %}#10b981{% endif %}; padding: 1rem; margin-bottom: 1.5rem; background: rgba(255,255,255,0.02); color: white;">
                     {{ message }}
                 </div>
             {% endfor %}
@@ -222,7 +229,7 @@
     </div>
 
     <footer>
-        KaliForms &mdash; Simplifier la donnée.
+        &copy; 2026 KaliForms &mdash; La donnée, simplifiée.
     </footer>
 
     {% block extra_js %}{% endblock %}
