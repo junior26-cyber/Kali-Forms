@@ -6,12 +6,16 @@
     <title>{% block title %}KaliForms{% endblock %}</title>
     <style>
         :root {
-            --primary-color: #673ab7;
-            --bg-color: #f0ebf8;
-            --white: #ffffff;
-            --text-color: #202124;
-            --text-secondary: #70757a;
-            --border-color: #dadce0;
+            /* Dark Theme Palette */
+            --primary-color: #bb86fc; /* Purple light for dark mode */
+            --primary-variant: #3700b3;
+            --bg-color: #0f172a; /* Slate 900 */
+            --surface-color: #1e293b; /* Slate 800 */
+            --white: #1e293b; 
+            --text-color: #f8fafc; /* Slate 50 */
+            --text-secondary: #94a3b8; /* Slate 400 */
+            --border-color: #334155; /* Slate 700 */
+            --input-bg: #0f172a;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -24,15 +28,16 @@
             min-height: 100vh;
         }
         nav {
-            background-color: var(--white);
+            background-color: var(--surface-color);
             padding: 10px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
             position: sticky;
             top: 0;
             z-index: 100;
+            border-bottom: 1px solid var(--border-color);
         }
         .logo {
             font-size: 22px;
@@ -51,31 +56,33 @@
             box-sizing: border-box;
         }
         .card {
-            background-color: var(--white);
-            border-radius: 8px;
+            background-color: var(--surface-color);
+            border-radius: 12px;
             border: 1px solid var(--border-color);
             padding: 24px;
             margin-bottom: 16px;
-            transition: box-shadow 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
         }
         .btn {
-            padding: 8px 20px;
-            border-radius: 4px;
+            padding: 10px 24px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 14px;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
             text-decoration: none;
             display: inline-block;
             text-align: center;
         }
         .btn-primary {
             background-color: var(--primary-color);
-            color: white;
+            color: #000;
         }
         .btn-primary:hover {
-            background-color: #5e35b1;
+            background-color: #d7bbff;
+            transform: translateY(-1px);
         }
         .btn-outline {
             background-color: transparent;
@@ -83,53 +90,66 @@
             color: var(--text-color);
         }
         .btn-outline:hover {
-            background-color: #f8f9fa;
+            background-color: rgba(255,255,255,0.05);
+            border-color: var(--text-secondary);
         }
         input[type="text"], input[type="email"], input[type="password"], textarea, select {
             width: 100%;
             padding: 12px;
             margin: 8px 0;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
+            border-radius: 8px;
             box-sizing: border-box;
             font-size: 16px;
-            background-color: #f8f9fa;
+            background-color: var(--input-bg);
+            color: var(--text-color);
         }
         input:focus, textarea:focus {
             outline: none;
-            border-bottom: 2px solid var(--primary-color);
-            background-color: #fff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.2);
         }
         .sondage-header {
-            border-top: 10px solid var(--primary-color);
+            border-top: 8px solid var(--primary-color);
         }
         .sondage-title {
             font-size: 32px;
             margin-bottom: 8px;
-            font-weight: 600;
+            font-weight: 700;
         }
         .fab {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 56px;
-            height: 56px;
-            background-color: var(--white);
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
             cursor: pointer;
             text-decoration: none;
-            color: var(--primary-color);
+            color: #000;
             font-size: 32px;
             font-weight: bold;
         }
+        .fab:hover {
+            transform: scale(1.1);
+        }
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
+        }
+        .status-badge {
+            background: rgba(187, 134, 252, 0.1);
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -139,11 +159,11 @@
         <a href="{% url 'home' %}" class="logo">KaliForms</a>
         <div>
             {% if user.is_authenticated %}
-                <span style="margin-right: 15px;">{{ user.username }}</span>
+                <span style="margin-right: 15px; color: var(--text-secondary);">{{ user.username }}</span>
                 <a href="{% url 'dashboard' %}" class="btn btn-outline">Mes Formulaires</a>
                 <form method="post" action="{% url 'logout' %}" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-outline" style="margin-left:10px;">Déconnexion</button>
+                    <button type="submit" class="btn btn-outline" style="margin-left:10px;">Quitter</button>
                 </form>
             {% else %}
                 <a href="{% url 'login' %}" class="btn btn-outline">Connexion</a>
@@ -155,13 +175,17 @@
     <div class="container">
         {% if messages %}
             {% for message in messages %}
-                <div class="card" style="border-left: 5px solid {% if message.tags == 'error' %}#d93025{% else %}#10b981{% endif %}; padding: 15px; margin-bottom: 20px;">
+                <div class="card" style="border-left: 5px solid {% if message.tags == 'error' %}#ef4444{% else %}#10b981{% endif %}; padding: 15px; margin-bottom: 20px; background: rgba(255,255,255,0.02);">
                     {{ message }}
                 </div>
             {% endfor %}
         {% endif %}
         {% block content %}{% endblock %}
     </div>
+
+    <footer style="margin-top: auto; padding: 40px; text-align: center; color: var(--text-secondary); font-size: 0.875rem;">
+        &copy; 2026 KaliForms. Tous droits réservés.
+    </footer>
 
     {% block extra_js %}{% endblock %}
 </body>
