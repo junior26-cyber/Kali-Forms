@@ -206,70 +206,79 @@ def sondage_submit(request, sondage_id):
         return render(request, 'forms/sondage_thanks.html', {'sondage': sondage})
     return redirect('sondage_view', sondage_id=sondage_id)
 
+from django.db.models import Count
+from django.db.models.functions import TruncDay
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+
 @login_required
 def sondage_results(request, sondage_id):
     try:
         sondage = Sondage.objects.get(id=sondage_id, creator=request.user)
     except Sondage.DoesNotExist:
-        messages.error(request, "Accès refusé : vous n'avez pas l'autorisation de voir ces résultats.")
+        messages.error(request, "Accès refusé.")
         return redirect('dashboard')
 
-    responses = sondage.responses.all().order_by('-created_at')
+    responses = sondage.responses.all().order_with_respect_to('created_at')
     responses_count = responses.count()
     
+    # --- Données pour le graphique d'évolution (Time Series) ---
+    evolution_query = responses.annotate(day=TruncDay('created_at')) \
+                               .values('day') \
+                               .annotate(count=Count('id')) \
+                               .order_by('day')
+    
+    evolution_labels = [item['day'].strftime('%d %b') for item in evolution_query]
+    evolution_data = [item['count'] for item in evolution_query]
+
     questions = sondage.questions.all()
     questions_data = []
     
-    # Statistiques par question
     for question in questions:
-        data = {'question': question, 'answers_list': []}
+        data = {
+            'question': question, 
+            'answers_list': [],
+            'chart_labels': [],
+            'chart_data': []
+        }
         
         if question.type in ['text', 'textarea']:
-            # Récupérer les 20 dernières réponses textuelles non vides
-            data['answers_list'] = Answer.objects.filter(
-                question=question, 
-                response__sondage=sondage
-            ).exclude(text_value='').values_list('text_value', flat=True)[:20]
+            data['answers_list'] = Answer.objects.filter(question=question).exclude(text_value='').values_list('text_value', flat=True)[:10]
         else:
-            options_stats = []
             for option in question.options.all():
-                count = Answer.objects.filter(
-                    question=question, 
-                    selected_options=option,
-                    response__sondage=sondage
-                ).count()
-                options_stats.append({
-                    'text': option.text,
-                    'count': count,
-                    'percentage': (count / responses_count * 100) if responses_count > 0 else 0
-                })
-            data['options_stats'] = options_stats
+                count = Answer.objects.filter(question=question, selected_options=option).count()
+                data['chart_labels'].append(option.text)
+                data['chart_data'].append(count)
+            
+            # Formater les stats pour l'affichage classique aussi
+            data['options_stats'] = [
+                {'text': label, 'count': val, 'percentage': (val/responses_count*100 if responses_count > 0 else 0)} 
+                for label, val in zip(data['chart_labels'], data['chart_data'])
+            ]
             
         questions_data.append(data)
-    
-    # Tableau détaillé des réponses
+
+    # Préparation du tableau détaillé
     table_headers = [q.text for q in questions]
     table_rows = []
-    for resp in responses:
-        row = {'id': resp.id, 'date': resp.created_at, 'answers': []}
+    for resp in responses.order_by('-created_at'):
+        row = {'date': resp.created_at, 'answers': []}
         for q in questions:
             ans = Answer.objects.filter(response=resp, question=q).first()
             if ans:
-                if q.type in ['text', 'textarea']:
-                    row['answers'].append(ans.text_value or '-')
-                else:
-                    opts = ", ".join([o.text for o in ans.selected_options.all()])
-                    row['answers'].append(opts or '-')
-            else:
-                row['answers'].append('-')
+                val = ans.text_value if q.type in ['text', 'textarea'] else ", ".join([o.text for o in ans.selected_options.all()])
+                row['answers'].append(val or '-')
+            else: row['answers'].append('-')
         table_rows.append(row)
-        
+
     return render(request, 'forms/sondage_results.html', {
         'sondage': sondage,
         'responses_count': responses_count,
+        'evolution_labels': json.dumps(evolution_labels),
+        'evolution_data': json.dumps(evolution_data),
         'questions_data': questions_data,
         'table_headers': table_headers,
-        'table_rows': table_rows
+        'table_rows': table_rows,
     })
 
 # Vue de connexion personnalisée sécurisée contre les emails multiples
@@ -318,7 +327,31 @@ def signup(request):
 class CustomLogoutView(LogoutView):
     next_page = reverse_lazy('home')
 
-# Vue pour mot de passe oublié
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
+@login_required
+@require_POST
+def sondage_autosave(request, sondage_id):
+    sondage = get_object_or_404(Sondage, id=sondage_id, creator=request.user)
+    
+    title = request.POST.get('title')
+    description = request.POST.get('description')
+    
+    if title:
+        sondage.title = title
+    if description is not None:
+        sondage.description = description
+        
+    sondage.save()
+    
+    # Auto-save questions texts
+    for key, value in request.POST.items():
+        if key.startswith('q_text_'):
+            q_id = key.replace('q_text_', '')
+            Question.objects.filter(id=q_id, sondage=sondage).update(text=value)
+            
+    return JsonResponse({'status': 'success', 'message': 'Sauvegardé automatiquement'})
 def forgot_password(request):
     user = None
     if request.method == 'POST':

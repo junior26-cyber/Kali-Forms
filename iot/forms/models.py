@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+# --- Modèles Principaux KaliForms ---
+
 class Sondage(models.Model):
+    """Représente un formulaire/sondage créé par un utilisateur."""
     title = models.CharField(max_length=255, verbose_name="Titre")
     description = models.TextField(blank=True, null=True, verbose_name="Description")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -13,6 +16,7 @@ class Sondage(models.Model):
         return self.title
 
 class Question(models.Model):
+    """Une question spécifique au sein d'un sondage."""
     QUESTION_TYPES = (
         ('text', 'Texte court'),
         ('textarea', 'Texte long'),
@@ -34,6 +38,7 @@ class Question(models.Model):
         return f"{self.sondage.title} - {self.text}"
 
 class Option(models.Model):
+    """Option de réponse pour les questions de type choix multiple, cases à cocher, etc."""
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='options')
     text = models.CharField(max_length=255, verbose_name="Texte de l'option")
 
@@ -41,6 +46,7 @@ class Option(models.Model):
         return self.text
 
 class Response(models.Model):
+    """Instance unique de soumission d'un sondage par un répondant."""
     sondage = models.ForeignKey(Sondage, on_delete=models.CASCADE, related_name='responses')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -49,6 +55,7 @@ class Response(models.Model):
         return f"Réponse à {self.sondage.title} le {self.created_at}"
 
 class Answer(models.Model):
+    """Réponse individuelle à une question spécifique dans une soumission."""
     response = models.ForeignKey(Response, on_delete=models.CASCADE, related_name='answers')
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     text_value = models.TextField(blank=True, null=True, verbose_name="Réponse textuelle")

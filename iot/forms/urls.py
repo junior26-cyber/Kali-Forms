@@ -15,6 +15,7 @@ urlpatterns = [
     path('question/<int:question_id>/edit/', views.question_edit, name='question_edit'),
     path('question/<int:question_id>/delete/', views.question_delete, name='question_delete'),
     path('option/<int:option_id>/delete/', views.option_delete, name='option_delete'),
+    path('sondage/<int:sondage_id>/autosave/', views.sondage_autosave, name='sondage_autosave'),
     path('login/', views.custom_login, name='login'),
     path('signup/', views.signup, name='signup'),
     path('logout/', views.CustomLogoutView.as_view(), name='logout'),

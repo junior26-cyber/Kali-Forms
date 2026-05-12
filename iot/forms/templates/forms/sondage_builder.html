@@ -5,32 +5,61 @@
 {% block extra_css %}
 <style>
     .builder-header {
+        position: sticky;
+        top: 60px;
+        background: rgba(248, 250, 252, 0.8);
+        backdrop-filter: blur(8px);
+        padding: 1.5rem 0;
+        z-index: 100;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 3rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 2.5rem;
     }
-    .status-badge {
-        background: #ecfdf5;
-        color: #059669;
-        padding: 4px 12px;
-        border-radius: 20px;
+    .autosave-indicator {
         font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: opacity 0.3s;
     }
+    .autosave-indicator.saving { opacity: 0.5; }
+    
     .q-card {
-        border-left: 4px solid transparent;
-        transition: all 0.2s;
+        border: 1px solid var(--border-color);
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        background: white;
+        transition: box-shadow 0.3s, border-color 0.3s;
     }
-    .q-card:focus-within {
-        border-left-color: var(--primary-color);
-        box-shadow: var(--shadow);
+    .q-card:hover {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        border-color: #cbd5e1;
     }
-    .q-type-select {
-        background-color: #f8fafc;
-        font-weight: 600;
-        border-radius: 8px;
+    .q-card.active {
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .input-notion {
+        border: none;
+        background: transparent !important;
+        font-size: 1.125rem;
+        padding: 0.5rem 0;
+        width: 100%;
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.2s;
+    }
+    .input-notion:focus {
+        outline: none;
+        border-bottom-color: var(--border-color);
+    }
+    .input-title {
+        font-size: 2.25rem;
+        font-weight: 850;
+        letter-spacing: -1px;
     }
 </style>
 {% endblock %}
@@ -38,109 +67,166 @@
 {% block content %}
     <div class="builder-header">
         <div>
-            <div class="status-badge">Mode Édition</div>
-            <h1 style="font-size: 2.25rem; font-weight: 800; margin: 0.5rem 0 0;">{{ sondage.title }}</h1>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <h1 style="font-size: 1.25rem; font-weight: 700; margin: 0;">{{ sondage.title }}</h1>
+                <div id="saveStatus" class="autosave-indicator">
+                    <span id="saveIcon">●</span> <span id="saveText">Modifications enregistrées</span>
+                </div>
+            </div>
         </div>
         <div style="display: flex; gap: 0.75rem;">
-            <a href="{% url 'sondage_view' sondage.id %}" class="btn btn-outline" target="_blank">Aperçu</a>
-            <a href="{% url 'sondage_results' sondage.id %}" class="btn btn-primary">Résultats</a>
-            <button onclick="copyToClipboard('{{ request.build_absolute_uri|slice:":-8" }}view/')" class="btn btn-outline" style="border-color: var(--primary-color); color: var(--primary-color);">Partager</button>
+            <a href="{% url 'sondage_view' sondage.id %}" class="btn btn-outline" target="_blank">👁️ Aperçu</a>
+            <a href="{% url 'sondage_results' sondage.id %}" class="btn btn-primary">📊 Analytics</a>
+            <button onclick="copyToClipboard('{{ request.build_absolute_uri|slice:":-8" }}view/')" class="btn btn-outline">🔗 Partager</button>
         </div>
     </div>
 
-    {% for question in questions %}
-        <div class="card q-card" id="q-{{ question.id }}">
-            <form action="{% url 'question_edit' question.id %}" method="post">
-                {% csrf_token %}
-                <div style="display: grid; grid-template-columns: 1fr 220px; gap: 2rem;">
+    <!-- Sondage Header -->
+    <div class="card" style="border-top: 8px solid var(--primary-color);">
+        <input type="text" id="sondageTitle" class="input-notion input-title" value="{{ sondage.title }}" placeholder="Titre du formulaire">
+        <textarea id="sondageDesc" class="input-notion" style="margin-top: 1rem; color: var(--text-muted);" placeholder="Ajouter une description..." rows="1">{{ sondage.description|default:'' }}</textarea>
+    </div>
+
+    <!-- Questions List -->
+    <div id="questionList">
+        {% for question in questions %}
+            <div class="q-card" id="q-{{ question.id }}" onclick="setActiveQuestion(this)">
+                <div style="display: grid; grid-template-columns: 1fr 200px; gap: 2rem;">
                     <div>
-                        <input type="text" name="text" value="{{ question.text }}" placeholder="Intitulé de la question" style="font-size: 1.125rem; font-weight: 600; border: none; background: transparent; padding: 0.5rem 0; border-bottom: 2px solid #f1f5f9;" required>
+                        <input type="text" class="input-notion question-text-input" 
+                               data-qid="{{ question.id }}" 
+                               value="{{ question.text }}" 
+                               placeholder="Sans titre">
                         
                         <div style="margin-top: 1.5rem;">
                             {% if question.type == 'text' %}
-                                <input type="text" placeholder="Réponse courte" disabled style="background-color: #f8fafc; border-style: dashed; opacity: 0.6;">
+                                <div style="color: var(--text-muted); border-bottom: 1px dashed #ddd; padding: 0.5rem 0; width: 50%;">Réponse courte</div>
                             {% elif question.type == 'textarea' %}
-                                <textarea placeholder="Réponse longue" disabled style="background-color: #f8fafc; border-style: dashed; opacity: 0.6;" rows="2"></textarea>
+                                <div style="color: var(--text-muted); border-bottom: 1px dashed #ddd; padding: 0.5rem 0; width: 80%;">Réponse longue</div>
                             {% elif question.type == 'boolean' %}
-                                <div style="display: flex; gap: 2rem;">
-                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem;"><input type="radio" disabled> Oui</label>
-                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem;"><input type="radio" disabled> Non</label>
+                                <div style="display: flex; gap: 1rem;">
+                                    <div style="padding: 0.5rem 1rem; background: #f1f5f9; border-radius: 8px; font-size: 0.875rem;">Oui</div>
+                                    <div style="padding: 0.5rem 1rem; background: #f1f5f9; border-radius: 8px; font-size: 0.875rem;">Non</div>
                                 </div>
                             {% else %}
-                                <div id="options-{{ question.id }}">
+                                <div class="options-container">
                                     {% for option in question.options.all %}
-                                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
-                                            <input type="radio" disabled style="width: 18px; height: 18px;">
-                                            <input type="hidden" name="option_ids" value="{{ option.id }}">
-                                            <input type="text" name="option_texts" value="{{ option.text }}" style="margin: 0; padding: 0.5rem; border: none; background: #f8fafc; border-radius: 6px;">
-                                            <a href="{% url 'option_delete' option.id %}" style="color: #ef4444; font-size: 1.25rem; text-decoration: none;">&times;</a>
+                                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                            <div style="width: 16px; height: 16px; border: 2px solid #ddd; border-radius: 50%;"></div>
+                                            <span style="font-size: 0.875rem;">{{ option.text }}</span>
                                         </div>
                                     {% endfor %}
-                                    <div id="new-options-{{ question.id }}"></div>
-                                    <button type="button" onclick="addOptionField({{ question.id }})" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.75rem; margin-top: 0.5rem;">+ Ajouter une option</button>
+                                    <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--primary-color);">
+                                        Mode édition requis pour modifier les options
+                                    </div>
                                 </div>
                             {% endif %}
                         </div>
                     </div>
                     
                     <div>
-                        <select name="type" class="q-type-select" onchange="this.form.submit()">
-                            {% for val, label in question_types %}
-                                <option value="{{ val }}" {% if question.type == val %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
+                        <form action="{% url 'question_edit' question.id %}" method="post">
+                            {% csrf_token %}
+                            <select name="type" class="select" onchange="this.form.submit()" style="background: #f8fafc; font-weight: 600;">
+                                {% for val, label in question_types %}
+                                    <option value="{{ val }}" {% if question.type == val %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="hidden" name="text" value="{{ question.text }}">
+                        </form>
+                        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
+                             <a href="{% url 'question_edit' question.id %}" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;">Gérer Options</a>
+                             <form action="{% url 'question_delete' question.id %}" method="post">
+                                 {% csrf_token %}
+                                 <button type="submit" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; color: #ef4444;">Suppr.</button>
+                             </form>
+                        </div>
                     </div>
                 </div>
-                
-                <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; align-items: center; gap: 1.5rem;">
-                    <label style="display: flex; align-items: center; gap: 10px; font-size: 0.8125rem; font-weight: 600; color: var(--text-muted); cursor: pointer;">
-                        Obligatoire <input type="checkbox" name="is_required" {% if question.is_required %}checked{% endif %} onchange="this.form.submit()" style="width: 16px; height: 16px; margin: 0;">
-                    </label>
-                    <div style="width: 1px; height: 20px; background: #e2e8f0;"></div>
-                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1.5rem; font-size: 0.8125rem;">Enregistrer</button>
-                    <button type="submit" form="delete-q-{{ question.id }}" class="btn btn-outline" style="color: #ef4444; border: none; padding: 0.5rem;">Supprimer</button>
-                </div>
-            </form>
-            <form id="delete-q-{{ question.id }}" action="{% url 'question_delete' question.id %}" method="post" onsubmit="return confirm('Supprimer définitivement cette question ?')">
-                {% csrf_token %}
-            </form>
-        </div>
-    {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
 
-    <div class="card" style="border: 2px dashed #cbd5e1; background: transparent; text-align: center; padding: 3rem;">
-        <p style="font-weight: 700; color: var(--text-muted); margin-bottom: 1.5rem;">Nouvelle Question</p>
-        <form action="{% url 'question_add' sondage.id %}" method="post" style="display: flex; gap: 0.75rem; justify-content: center;">
+    <!-- Add Question -->
+    <div class="card" style="border: 2px dashed var(--border-color); background: transparent; text-align: center; padding: 2rem;">
+        <form action="{% url 'question_add' sondage.id %}" method="post" style="display: flex; gap: 1rem; justify-content: center; align-items: center;">
             {% csrf_token %}
-            <select name="type" style="width: auto; margin: 0; font-weight: 600;">
+            <span style="font-weight: 600; color: var(--text-muted);">Ajouter une question :</span>
+            <select name="type" class="select" style="width: auto; margin: 0;">
                 {% for val, label in question_types %}
                     <option value="{{ val }}">{{ label }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="btn btn-primary">Ajouter au formulaire</button>
+            <button type="submit" class="btn btn-primary">+ Ajouter</button>
         </form>
     </div>
 
-    <script>
-        function addOptionField(questionId) {
-            const container = document.getElementById('new-options-' + questionId);
-            const div = document.createElement('div');
-            div.style.display = 'flex';
-            div.style.alignItems = 'center';
-            div.style.gap = '1rem';
-            div.style.marginBottom = '0.75rem';
-            div.innerHTML = `
-                <input type="radio" disabled style="width: 18px; height: 18px;">
-                <input type="text" name="new_option_texts" placeholder="Option" style="margin: 0; padding: 0.5rem; border: none; background: #f1f5f9; border-radius: 6px;" autofocus>
-                <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.5rem;">&times;</button>
-            `;
-            container.appendChild(div);
-        }
+{% endblock %}
 
-        function copyToClipboard(text) {
-            const cleanText = text.replace('/survey/', '/sondage/');
-            navigator.clipboard.writeText(cleanText).then(() => {
-                alert('Lien de partage copié.');
-            });
-        }
-    </script>
+{% block extra_js %}
+<script>
+    let saveTimeout = null;
+
+    // --- Autosave Logic ---
+    function triggerAutosave() {
+        const statusText = document.getElementById('saveText');
+        const statusIcon = document.getElementById('saveIcon');
+        
+        statusText.innerText = 'Enregistrement...';
+        statusIcon.style.color = '#f59e0b';
+
+        const formData = new FormData();
+        formData.append('title', document.getElementById('sondageTitle').value);
+        formData.append('description', document.getElementById('sondageDesc').value);
+        
+        // Collect question texts
+        document.querySelectorAll('.question-text-input').forEach(input => {
+            formData.append(`q_text_${input.dataset.qid}`, input.value);
+        });
+
+        fetch("{% url 'sondage_autosave' sondage.id %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                statusText.innerText = 'Sauvegardé automatiquement';
+                statusIcon.style.color = '#10b981';
+            }
+        })
+        .catch(err => {
+            statusText.innerText = 'Erreur de connexion';
+            statusIcon.style.color = '#ef4444';
+        });
+    }
+
+    // Monitor changes
+    const inputs = ['sondageTitle', 'sondageDesc'];
+    inputs.forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(triggerAutosave, 1000); // Save 1s after last change
+        });
+    });
+
+    document.querySelectorAll('.question-text-input').forEach(input => {
+        input.addEventListener('input', () => {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(triggerAutosave, 1000);
+        });
+    });
+
+    function setActiveQuestion(el) {
+        document.querySelectorAll('.q-card').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => alert('Lien copié !'));
+    }
+</script>
 {% endblock %}
