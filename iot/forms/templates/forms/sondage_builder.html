@@ -19,7 +19,7 @@
     }
     .autosave-indicator {
         font-size: 0.75rem;
-        color: #94a3b8; /* Explicit light gray */
+        color: #94a3b8;
         display: flex;
         align-items: center;
         gap: 8px;
@@ -33,61 +33,54 @@
         transition: var(--transition);
         position: relative;
     }
-    .q-card:hover {
-        border-color: rgba(255,255,255,0.2);
-    }
-    .q-card.active {
-        border-left: 4px solid var(--primary-color);
-    }
+    .q-card:hover { border-color: rgba(255,255,255,0.2); }
+    .q-card.active { border-left: 4px solid var(--primary-color); }
+    
     .input-notion {
         border: none;
         background: transparent !important;
         padding: 0.5rem 0;
         width: 100%;
-        color: white; /* Ensure text is visible */
+        color: white;
         border-bottom: 1px solid transparent;
         font-family: inherit;
     }
-    .input-notion:focus {
-        outline: none;
-        border-bottom-color: var(--primary-color);
-    }
-    .input-title {
-        font-size: 2.5rem;
-        font-weight: 800;
-        letter-spacing: -2px;
-        color: white;
-    }
-    .option-row {
+    .input-notion:focus { outline: none; border-bottom-color: var(--primary-color); }
+    .input-title { font-size: 2.5rem; font-weight: 800; letter-spacing: -2px; }
+
+    .option-item {
         display: flex;
         align-items: center;
         gap: 1rem;
         margin-bottom: 0.75rem;
+        animation: fadeIn 0.3s ease-out;
     }
     .option-dot {
         width: 18px;
         height: 18px;
         border: 2px solid rgba(255,255,255,0.2);
         border-radius: 50%;
+        flex-shrink: 0;
     }
+    .btn-icon {
+        background: none;
+        border: none;
+        color: #f87171;
+        cursor: pointer;
+        font-size: 1.2rem;
+        opacity: 0.5;
+        transition: opacity 0.2s;
+    }
+    .btn-icon:hover { opacity: 1; }
+    
     .label-accent {
         font-size: 0.7rem;
         font-weight: 800;
-        color: #818cf8; /* Bright indigo */
+        color: #818cf8;
         text-transform: uppercase;
         letter-spacing: 1.5px;
         margin-bottom: 0.5rem;
         display: block;
-    }
-    
-    /* Ensuring dropdown text is bright */
-    select {
-        color: white !important;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        background-size: 1.2em;
-        appearance: none;
     }
 </style>
 {% endblock %}
@@ -97,7 +90,7 @@
         <div style="display: flex; align-items: center; gap: 1.5rem;">
             <h1 style="font-size: 1rem; font-weight: 700; margin: 0; color: white;">{{ sondage.title }}</h1>
             <div id="saveStatus" class="autosave-indicator">
-                <span id="saveIcon" style="color: #10b981;">●</span> <span id="saveText">Connecté</span>
+                <span id="saveIcon" style="color: #10b981;">●</span> <span id="saveText">Enregistré</span>
             </div>
         </div>
         <div style="display: flex; gap: 0.75rem;">
@@ -107,54 +100,56 @@
         </div>
     </div>
 
-    <!-- Header Section -->
-    <div class="card reveal" style="border-top: 6px solid var(--primary-color); padding: 3.5rem; background: var(--surface-color);">
+    <!-- Main Header -->
+    <div class="card reveal" style="border-top: 6px solid var(--primary-color); padding: 3.5rem;">
         <input type="text" id="sondageTitle" class="input-notion input-title" value="{{ sondage.title }}" placeholder="Titre du formulaire">
-        <textarea id="sondageDesc" class="input-notion" style="margin-top: 1.5rem; font-size: 1.1rem; color: #94a3b8;" placeholder="Description (cliquez pour éditer)..." rows="1">{{ sondage.description|default:'' }}</textarea>
+        <textarea id="sondageDesc" class="input-notion" style="margin-top: 1.5rem; font-size: 1.1rem; color: #94a3b8;" placeholder="Description..." rows="1">{{ sondage.description|default:'' }}</textarea>
     </div>
 
-    <!-- Questions -->
+    <!-- Questions Container -->
     <div id="questionList" class="reveal">
         {% for question in questions %}
             <div class="q-card" id="q-{{ question.id }}" onclick="setActiveQuestion(this)">
                 <div style="display: grid; grid-template-columns: 1fr 240px; gap: 3rem;">
                     <div>
                         <input type="text" class="input-notion question-text-input" 
-                               style="font-size: 1.25rem; font-weight: 600; color: white;"
+                               style="font-size: 1.25rem; font-weight: 600;"
                                data-qid="{{ question.id }}" 
                                value="{{ question.text }}" 
                                placeholder="Saisissez votre question">
                         
                         <div style="margin-top: 2rem;">
-                            {% if question.type == 'text' %}
-                                <div style="color: #64748b; border-bottom: 1px dashed rgba(255,255,255,0.1); padding: 0.5rem 0; width: 60%; font-size: 0.9rem;">Réponse courte</div>
-                            {% elif question.type == 'textarea' %}
-                                <div style="color: #64748b; border-bottom: 1px dashed rgba(255,255,255,0.1); padding: 0.5rem 0; width: 90%; font-size: 0.9rem;">Paragraphe</div>
+                            {% if question.type == 'text' or question.type == 'textarea' %}
+                                <div style="color: #64748b; border-bottom: 1px dashed rgba(255,255,255,0.1); padding: 0.5rem 0; width: 60%; font-size: 0.9rem;">
+                                    {% if question.type == 'text' %}Réponse courte{% else %}Paragraphe{% endif %}
+                                </div>
                             {% elif question.type == 'boolean' %}
                                 <div style="display: flex; gap: 1.5rem;">
                                     <div style="padding: 0.6rem 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.9rem; color: #94a3b8;">Oui</div>
                                     <div style="padding: 0.6rem 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.9rem; color: #94a3b8;">Non</div>
                                 </div>
                             {% else %}
-                                <div class="options-preview">
+                                <div id="options-container-{{ question.id }}">
                                     {% for option in question.options.all %}
-                                        <div class="option-row">
+                                        <div class="option-item" id="opt-{{ option.id }}">
                                             <div class="option-dot"></div>
-                                            <span style="font-size: 1rem; color: white;">{{ option.text }}</span>
+                                            <input type="text" class="input-notion option-text-input" 
+                                                   data-oid="{{ option.id }}" 
+                                                   value="{{ option.text }}" 
+                                                   style="font-size: 1rem; color: white;">
+                                            <button onclick="deleteOption({{ option.id }})" class="btn-icon">&times;</button>
                                         </div>
                                     {% endfor %}
-                                    <div style="margin-top: 1.5rem;">
-                                        <a href="{% url 'question_edit' question.id %}" class="btn btn-outline" style="font-size: 0.75rem; padding: 6px 16px; border-radius: 6px;">Gérer les options</a>
-                                    </div>
                                 </div>
+                                <button onclick="addOption({{ question.id }})" class="btn btn-outline" style="font-size: 0.75rem; padding: 6px 16px; margin-top: 1rem;">+ Ajouter une option</button>
                             {% endif %}
                         </div>
                     </div>
                     
                     <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 2rem;">
+                        <span class="label-accent">Type</span>
                         <form action="{% url 'question_edit' question.id %}" method="post">
                             {% csrf_token %}
-                            <span class="label-accent">Format</span>
                             <select name="type" onchange="this.form.submit()" style="margin-top: 0.5rem;">
                                 {% for val, label in question_types %}
                                     <option value="{{ val }}" {% if question.type == val %}selected{% endif %}>{{ label }}</option>
@@ -163,7 +158,7 @@
                             <input type="hidden" name="text" value="{{ question.text }}">
                         </form>
                         <div style="margin-top: 2.5rem;">
-                             <form action="{% url 'question_delete' question.id %}" method="post" onsubmit="return confirm('Supprimer définitivement cette question ?')">
+                             <form action="{% url 'question_delete' question.id %}" method="post" onsubmit="return confirm('Supprimer ?')">
                                  {% csrf_token %}
                                  <button type="submit" class="btn btn-outline" style="width: 100%; color: #f87171; border-color: rgba(239, 68, 68, 0.2); font-size: 0.75rem;">Supprimer</button>
                              </form>
@@ -172,56 +167,117 @@
                 </div>
                 
                 <div style="margin-top: 2rem; display: flex; justify-content: flex-end; align-items: center; gap: 1.5rem; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 1rem;">
-                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #94a3b8; font-size: 0.8rem; font-weight: 600;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: none;">
                         Obligatoire 
-                        <form action="{% url 'question_edit' question.id %}" method="post" style="display: inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="text" value="{{ question.text }}">
-                            <input type="hidden" name="type" value="{{ question.type }}">
-                            <input type="checkbox" name="is_required" {% if question.is_required %}checked{% endif %} onchange="this.form.submit()" style="width: 18px; height: 18px; margin: 0; cursor: pointer;">
-                        </form>
+                        <input type="checkbox" class="required-toggle" data-qid="{{ question.id }}" {% if question.is_required %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer;">
                     </label>
                 </div>
             </div>
         {% endfor %}
     </div>
 
-    <!-- Add Question -->
-    <div class="card reveal" style="border: 2px dashed rgba(255,255,255,0.1); background: transparent; text-align: center; padding: 4rem;">
-        <form action="{% url 'question_add' sondage.id %}" method="post" style="display: flex; gap: 1.5rem; justify-content: center; align-items: center;">
-            {% csrf_token %}
-            <span style="font-weight: 700; color: #6366f1; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Nouveau bloc</span>
-            <select name="type" style="width: 220px; margin: 0;">
+    <!-- New Question -->
+    <div class="card reveal" style="border: 2px dashed rgba(255,255,255,0.1); background: transparent; text-align: center; padding: 3.5rem;">
+        <div style="display: flex; gap: 1.5rem; justify-content: center; align-items: center;">
+            <span style="font-weight: 700; color: #6366f1; text-transform: uppercase; font-size: 0.8rem;">Ajouter un bloc</span>
+            <select id="newQuestionType" style="width: 220px; margin: 0;">
                 {% for val, label in question_types %}
                     <option value="{{ val }}">{{ label }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="btn btn-primary">Ajouter</button>
-        </form>
+            <button onclick="addQuestion()" class="btn btn-primary">Ajouter</button>
+        </div>
     </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
     let saveTimeout = null;
+
     function triggerAutosave() {
         const st = document.getElementById('saveText');
         const si = document.getElementById('saveIcon');
-        st.innerText = 'Synchronisation...';
+        st.innerText = 'Enregistrement...';
         si.style.color = '#f59e0b';
+
         const formData = new FormData();
         formData.append('title', document.getElementById('sondageTitle').value);
         formData.append('description', document.getElementById('sondageDesc').value);
+        
         document.querySelectorAll('.question-text-input').forEach(i => formData.append(`q_text_${i.dataset.qid}`, i.value));
-        fetch("{% url 'sondage_autosave' sondage.id %}", { method: 'POST', body: formData, headers: { 'X-CSRFToken': '{{ csrf_token }}' } })
-        .then(r => r.json()).then(d => { st.innerText = 'Enregistré'; si.style.color = '#10b981'; })
+        document.querySelectorAll('.required-toggle').forEach(i => formData.append(`q_req_${i.dataset.qid}`, i.checked));
+        document.querySelectorAll('.option-text-input').forEach(i => formData.append(`opt_text_${i.dataset.oid}`, i.value));
+
+        fetch("{% url 'sondage_autosave' sondage.id %}", { 
+            method: 'POST', 
+            body: formData, 
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' } 
+        })
+        .then(r => r.json()).then(() => { 
+            st.innerText = 'Modifications enregistrées'; 
+            si.style.color = '#10b981'; 
+        })
         .catch(() => { st.innerText = 'Erreur'; si.style.color = '#ef4444'; });
     }
-    const watch = ['sondageTitle', 'sondageDesc'];
-    watch.forEach(id => document.getElementById(id).addEventListener('input', () => { clearTimeout(saveTimeout); saveTimeout = setTimeout(triggerAutosave, 1500); }));
-    document.querySelectorAll('.question-text-input').forEach(i => i.addEventListener('input', () => { clearTimeout(saveTimeout); saveTimeout = setTimeout(triggerAutosave, 1500); }));
-    function setActiveQuestion(el) { document.querySelectorAll('.q-card').forEach(c => c.classList.remove('active')); el.classList.add('active'); }
-    function copyToClipboard(t) { navigator.clipboard.writeText(t.replace('/survey/', '/sondage/')).then(() => alert('Lien de partage copié.')); }
+
+    function setupListeners() {
+        const watchSelectors = ['#sondageTitle', '#sondageDesc', '.question-text-input', '.option-text-input', '.required-toggle'];
+        document.querySelectorAll(watchSelectors.join(',')).forEach(el => {
+            el.addEventListener('input', () => {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(triggerAutosave, 1000);
+            });
+            el.addEventListener('change', () => {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(triggerAutosave, 500);
+            });
+        });
+    }
+
+    function addQuestion() {
+        const type = document.getElementById('newQuestionType').value;
+        window.location.href = "{% url 'question_add_ajax' sondage.id %}?type=" + type;
+    }
+
+    function addOption(qid) {
+        fetch(`/forms/question/${qid}/option/add/`, {
+            method: 'GET',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if(data.status === 'success') {
+                const container = document.getElementById(`options-container-${qid}`);
+                const div = document.createElement('div');
+                div.className = 'option-item';
+                div.id = `opt-${data.option_id}`;
+                div.innerHTML = `
+                    <div class="option-dot"></div>
+                    <input type="text" class="input-notion option-text-input" data-oid="${data.option_id}" value="${data.option_text}" style="color: white;">
+                    <button onclick="deleteOption(${data.option_id})" class="btn-icon">&times;</button>
+                `;
+                container.appendChild(div);
+                setupListeners();
+            }
+        });
+    }
+
+    function deleteOption(oid) {
+        fetch(`/forms/option/${oid}/delete/ajax/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+        })
+        .then(r => r.json())
+        .then(() => document.getElementById(`opt-${oid}`).remove());
+    }
+
+    function setActiveQuestion(el) {
+        document.querySelectorAll('.q-card').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function copyToClipboard(t) { navigator.clipboard.writeText(t.replace('/survey/', '/sondage/')).then(() => alert('Lien copié.')); }
+
+    setupListeners();
 </script>
 {% endblock %}

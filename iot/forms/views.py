@@ -333,23 +333,68 @@ from django.views.decorators.http import require_POST
 def sondage_autosave(request, sondage_id):
     sondage = get_object_or_404(Sondage, id=sondage_id, creator=request.user)
     
+    # Save Sondage Metadata
     title = request.POST.get('title')
     description = request.POST.get('description')
-    
-    if title:
-        sondage.title = title
-    if description is not None:
-        sondage.description = description
-        
+    if title: sondage.title = title
+    if description is not None: sondage.description = description
     sondage.save()
     
-    # Auto-save questions texts
+    # Save Question Texts & Required status
     for key, value in request.POST.items():
         if key.startswith('q_text_'):
             q_id = key.replace('q_text_', '')
             Question.objects.filter(id=q_id, sondage=sondage).update(text=value)
+        elif key.startswith('q_req_'):
+            q_id = key.replace('q_req_', '')
+            Question.objects.filter(id=q_id, sondage=sondage).update(is_required=(value == 'true'))
+        elif key.startswith('opt_text_'):
+            opt_id = key.replace('opt_text_', '')
+            Option.objects.filter(id=opt_id, question__sondage=sondage).update(text=value)
             
-    return JsonResponse({'status': 'success', 'message': 'Sauvegardé automatiquement'})
+    return JsonResponse({'status': 'success'})
+
+@login_required
+def question_add_ajax(request, sondage_id):
+    sondage = get_object_or_404(Sondage, id=sondage_id, creator=request.user)
+    q_type = request.GET.get('type', 'text')
+    
+    # Order calculation
+    last_q = sondage.questions.order_by('order').last()
+    order = (last_q.order + 1) if last_q else 0
+    
+    question = Question.objects.create(
+        sondage=sondage,
+        text="Nouvelle question",
+        type=q_type,
+        order=order
+    )
+    
+    # Add default options
+    if q_type in ['radio', 'checkbox', 'select']:
+        Option.objects.create(question=question, text="Option 1")
+    elif q_type == 'boolean':
+        Option.objects.create(question=question, text="Oui")
+        Option.objects.create(question=question, text="Non")
+        
+    return redirect('sondage_builder', sondage_id=sondage.id)
+
+@login_required
+def option_add_ajax(request, question_id):
+    question = get_object_or_404(Question, id=question_id, sondage__creator=request.user)
+    option = Option.objects.create(question=question, text="Nouvelle option")
+    return JsonResponse({
+        'status': 'success', 
+        'option_id': option.id, 
+        'option_text': option.text
+    })
+
+@login_required
+@require_POST
+def option_delete_ajax(request, option_id):
+    option = get_object_or_404(Option, id=option_id, question__sondage__creator=request.user)
+    option.delete()
+    return JsonResponse({'status': 'success'})
 def forgot_password(request):
     user = None
     if request.method == 'POST':
